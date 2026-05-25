@@ -1,0 +1,1290 @@
+<!-- Recommended Certifications Component -->
+<div class="certifications-section fade-up" style="margin-top: 40px;">
+  
+  <!-- Header & Description -->
+  <div style="margin-bottom: 28px;">
+    <span class="section-label" style="margin-bottom: 8px; color: var(--cyan);">💡 Career Accelerator</span>
+    <h2 style="font-size: 1.8rem; font-family: var(--font-display); font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+      Recommended Certifications <span style="font-size: 0.85rem; padding: 4px 10px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: var(--purple-light); border-radius: 99px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">AI-Powered</span>
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 720px;">
+      Boost your ATS ranking and unlock premium recruiter searches by resolving critical skill gaps with these official credentials.
+    </p>
+  </div>
+
+  <!-- Search and Dynamic Filter Section -->
+  <div class="glass-static" style="padding: 24px; margin-bottom: 32px; border-radius: var(--radius-md); background: rgba(10, 10, 15, 0.4); border-color: rgba(255,255,255,0.05);">
+    
+    <!-- Live Search -->
+    <div style="position: relative; margin-bottom: 20px;">
+      <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </span>
+      <input type="text" id="cert-search-input" placeholder="Search certifications by name, provider, or skills..." class="form-input" style="padding-left: 48px; border-radius: 12px; height: 50px; background: rgba(255, 255, 255, 0.02);" />
+      <span id="search-clear-btn" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; display: none; transition: color 0.2s;">
+        ✕
+      </span>
+    </div>
+
+    <!-- Filter Columns -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Domain Filter -->
+      <div class="filter-row">
+        <span class="filter-label">Domain</span>
+        <div class="filter-pills" id="filter-domain">
+          <button class="filter-pill active" data-value="all">All Domains</button>
+          <button class="filter-pill" data-value="AI/ML">AI/ML</button>
+          <button class="filter-pill" data-value="Data Science">Data Science</button>
+          <button class="filter-pill" data-value="Web Development">Web Dev</button>
+          <button class="filter-pill" data-value="DevOps">DevOps</button>
+          <button class="filter-pill" data-value="Cybersecurity">Cybersecurity</button>
+          <button class="filter-pill" data-value="Mobile Development">Mobile</button>
+          <button class="filter-pill" data-value="Finance">Finance</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <!-- Level Filter -->
+        <div class="filter-row">
+          <span class="filter-label">Difficulty</span>
+          <div class="filter-pills" id="filter-level">
+            <button class="filter-pill active" data-value="all">All</button>
+            <button class="filter-pill" data-value="Beginner">Beginner</button>
+            <button class="filter-pill" data-value="Intermediate">Intermediate</button>
+            <button class="filter-pill" data-value="Advanced">Advanced</button>
+          </div>
+        </div>
+
+        <!-- Pricing Filter -->
+        <div class="filter-row">
+          <span class="filter-label">Cost</span>
+          <div class="filter-pills" id="filter-price">
+            <button class="filter-pill active" data-value="all">All</button>
+            <button class="filter-pill" data-value="Free">Free</button>
+            <button class="filter-pill" data-value="Paid">Paid</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Certifications Grid -->
+  <div id="certs-grid" class="certs-grid-container">
+    <!-- Cards will be dynamically injected here -->
+  </div>
+
+  <!-- Empty State -->
+  <div id="certs-empty-state" class="glass-static" style="display: none; padding: 48px; text-align: center; border-radius: var(--radius-lg); background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.08);">
+    <div style="font-size: 3rem; margin-bottom: 16px;">🔍</div>
+    <h3 style="font-size: 1.15rem; margin-bottom: 8px;">No matching certifications found</h3>
+    <p id="certs-empty-text" style="color: var(--text-secondary); font-size: 0.9rem; max-width: 480px; margin: 0 auto;">
+      Try adjusting your filters or search term to discover relevant career pathways.
+    </p>
+  </div>
+
+</div>
+
+<!-- SVG Logos Store -->
+<div style="display: none;">
+  <svg id="svg-aws" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#FF9900" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.88 13.68c-.68.42-1.42.63-2.22.63-.82 0-1.5-.23-2.02-.68-.53-.45-.79-1.07-.79-1.85 0-.82.28-1.45.85-1.9.57-.45 1.4-.67 2.47-.67h1.49v-.4c0-.49-.11-.85-.34-1.08-.23-.23-.59-.34-1.07-.34-.41 0-.76.08-1.04.25-.28.16-.48.38-.61.64l-1.46-.73c.31-.58.76-1.03 1.34-1.35.58-.32 1.32-.48 2.22-.48.97 0 1.72.24 2.26.73.54.49.81 1.23.81 2.22v3.74c0 .48.1.84.29 1.08.19.24.47.36.83.36.19 0 .37-.03.54-.08v1.31c-.32.1-.69.15-1.11.15-.65 0-1.14-.17-1.47-.52-.18-.2-.29-.48-.32-.83zm-.23-2.45h-1.34c-.54 0-.94.1-1.19.31-.25.21-.38.5-.38.89 0 .37.11.66.34.86.23.2.55.3 1 .3.42 0 .78-.11 1.08-.34s.46-.57.46-1.01l.03-1.01z"/>
+    <path fill="#232F3E" d="M8.22 17.5c2.5 1.5 5.5 1.5 8 0l.5 1c-3 1.8-6.5 1.8-9.5 0l1-1z"/>
+  </svg>
+
+  <svg id="svg-google" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#4285F4" d="M21.35 11.1h-9.17v2.73h6.51c-.33 1.56-1.56 2.95-3.24 3.5v2.88h5.13c3.02-2.78 4.77-6.88 4.77-11.75 0-.49-.04-.97-.11-1.36z"/>
+    <path fill="#34A853" d="M12.18 20.5c2.75 0 5.06-.91 6.75-2.48l-5.13-2.88c-.73.49-1.68.8-2.67.8-2.61 0-4.83-1.77-5.62-4.14H.28v2.98c1.72 3.42 5.27 5.72 9.4 5.72z"/>
+    <path fill="#FBBC05" d="M6.56 11.8c-.2-.6-.31-1.24-.31-1.9s.11-1.3.31-1.9V5.02H.28C-.29 6.2-.6 7.51-.6 8.9c0 1.39.31 2.7.88 3.88l5.4-4.98z"/>
+    <path fill="#EA4335" d="M12.18 3.3c1.5 0 2.84.52 3.9 1.53l2.92-2.92C17.23.49 14.92-.4 12.18-.4 8.05-.4 4.5 1.9 2.78 5.32l5.4 4.98c.79-2.37 3.01-4.14 5.62-4.14z"/>
+  </svg>
+
+  <svg id="svg-microsoft" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#F25022" d="M2 2h9v9H2z"/>
+    <path fill="#7FBA00" d="M13 2h9v9h-9z"/>
+    <path fill="#00A4EF" d="M2 13h9v9H2z"/>
+    <path fill="#FFB900" d="M13 13h9v9h-9z"/>
+  </svg>
+
+  <svg id="svg-meta" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#0064E0" d="M16.94 6c-1.38 0-2.67.57-3.66 1.58L12 8.87l-1.28-1.29C9.73 6.57 8.44 6 7.06 6 4.27 6 2 8.27 2 11.06c0 2.86 2.37 5.94 7.06 9.94l2.94 2.5 2.94-2.5c4.69-4 7.06-7.08 7.06-9.94C22 8.27 19.73 6 16.94 6zm0 8.5c-2.37 2.02-4.22 3.73-4.94 4.39-.72-.66-2.57-2.37-4.94-4.39-2.85-2.43-3.06-3.85-3.06-4.44 0-1.69 1.37-3.06 3.06-3.06.84 0 1.62.35 2.21.96l1.73 1.74 1.73-1.74c.59-.61 1.37-.96 2.21-.96 1.69 0 3.06 1.37 3.06 3.06 0 .59-.21 2.01-3.06 4.44z"/>
+  </svg>
+
+  <svg id="svg-deeplearning" viewBox="0 0 24 24" width="24" height="24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="#FF6F00" stroke-width="2.5"/>
+    <path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4" stroke="#FF6F00" stroke-width="2"/>
+    <path d="M10 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2" fill="#FF6F00"/>
+  </svg>
+
+  <svg id="svg-ibm" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#0F62FE" d="M2 4h20v2H2zm0 3h20v1.5H2zm0 2.5h20v1.5H2zm0 2.5h20v1.5H2zm0 2.5h20v1.5H2zm0 2.5h20v2H2z"/>
+  </svg>
+
+  <svg id="svg-cisco" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#12ABDB" stroke-width="2.5">
+    <path d="M3 17v-4M6 19V9M9 16v-6M12 21V5M15 16v-6M18 19V9M21 17v-4" stroke-linecap="round"/>
+  </svg>
+
+  <svg id="svg-oracle" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#F80000" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+  </svg>
+
+  <svg id="svg-udemy" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#A435F0" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.75 12.83h-3.5L8.5 10.4h7l-1.75 4.43zM12 6.4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
+  </svg>
+
+  <svg id="svg-nptel" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#0D47A1" d="M12 2L1 7l11 5 9-4.09V17h2V7L12 2z"/>
+    <path fill="#1565C0" d="M3 10.24v6.52l9 5.24 9-5.24v-6.52l-9 4.9-9-4.9z"/>
+  </svg>
+
+  <svg id="svg-coursera" viewBox="0 0 24 24" width="24" height="24">
+    <path fill="#0056D2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.8 13h-7.6L7 10h10l-1.2 5z"/>
+  </svg>
+</div>
+
+<!-- Component Script & Logic -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Data Injection from Flask Backend
+  let userDomain = "{{ result.domain | safe }}";
+  let userSkills = {{ result.skills | tojson | safe }} || [];
+  let missingKeywords = {{ result.missing_keywords | tojson | safe }} || [];
+  
+  // Normalize strings to lowercase for reliable matching
+  const userDomainLower = userDomain.toLowerCase();
+  const userSkillsLower = userSkills.map(s => s.toLowerCase());
+  const missingKeywordsLower = missingKeywords.map(s => s.toLowerCase());
+
+  // 2. Comprehensive Master Certification Database
+  const MASTER_CERTIFICATIONS = [
+    // AI/ML
+    {
+      name: "Machine Learning Specialization",
+      provider: "DeepLearning.AI",
+      difficulty: "Beginner",
+      duration: "8 Weeks",
+      price_type: "Paid",
+      ats_boost: 15,
+      url: "https://www.coursera.org/specializations/machine-learning-introduction",
+      skills: ["Python", "Machine Learning", "Regression", "Supervised Learning", "Scikit-Learn"],
+      indicator: "Trending in 2026",
+      domain: "AI/ML",
+      svgId: "svg-deeplearning"
+    },
+    {
+      name: "Deep Learning Specialization",
+      provider: "DeepLearning.AI",
+      difficulty: "Intermediate",
+      duration: "12 Weeks",
+      price_type: "Paid",
+      ats_boost: 18,
+      url: "https://www.coursera.org/specializations/deep-learning",
+      skills: ["Deep Learning", "Neural Networks", "TensorFlow", "PyTorch", "NLP", "Computer Vision"],
+      indicator: "High ATS Value",
+      domain: "AI/ML",
+      svgId: "svg-deeplearning"
+    },
+    {
+      name: "TensorFlow Developer Professional Certificate",
+      provider: "DeepLearning.AI",
+      difficulty: "Intermediate",
+      duration: "3 Months",
+      price_type: "Paid",
+      ats_boost: 16,
+      url: "https://www.coursera.org/professional-certificates/tensorflow-in-practice",
+      skills: ["TensorFlow", "Deep Learning", "Computer Vision", "NLP", "Neural Networks"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "AI/ML",
+      svgId: "svg-deeplearning"
+    },
+    {
+      name: "AWS Certified Machine Learning - Specialty",
+      provider: "AWS",
+      difficulty: "Advanced",
+      duration: "3 Months",
+      price_type: "Paid",
+      ats_boost: 22,
+      url: "https://aws.amazon.com/certification/certified-machine-learning-specialty/",
+      skills: ["AWS", "MLOps", "SageMaker", "Machine Learning", "Cloud Architecture"],
+      indicator: "Boosts Cloud Resume Ranking",
+      domain: "AI/ML",
+      svgId: "svg-aws"
+    },
+    {
+      name: "NPTEL: Deep Learning",
+      provider: "NPTEL",
+      difficulty: "Intermediate",
+      duration: "12 Weeks",
+      price_type: "Free",
+      ats_boost: 10,
+      url: "https://onlinecourses.nptel.ac.in/noc23_cs122/preview",
+      skills: ["Deep Learning", "PyTorch", "CNN", "RNN", "Optimization"],
+      indicator: "Academic & Research Favorite",
+      domain: "AI/ML",
+      svgId: "svg-nptel"
+    },
+    {
+      name: "Introduction to Generative AI",
+      provider: "Google",
+      difficulty: "Beginner",
+      duration: "1 Day",
+      price_type: "Free",
+      ats_boost: 8,
+      url: "https://www.cloudskillsboost.google/course_templates/539",
+      skills: ["Generative AI", "LLMs", "Google Cloud", "AI"],
+      indicator: "Free Official Course",
+      domain: "AI/ML",
+      svgId: "svg-google"
+    },
+    {
+      name: "Deep Reinforcement Learning Class",
+      provider: "DeepLearning.AI",
+      difficulty: "Intermediate",
+      duration: "4 Weeks",
+      price_type: "Free",
+      ats_boost: 12,
+      url: "https://huggingface.co/learn/deep-rl-course/unit0/introduction",
+      skills: ["Reinforcement Learning", "PyTorch", "Hugging Face", "Machine Learning"],
+      indicator: "100% Free & Open Source",
+      domain: "AI/ML",
+      svgId: "svg-deeplearning"
+    },
+    {
+      name: "NPTEL: Artificial Intelligence Search Methods",
+      provider: "NPTEL",
+      difficulty: "Intermediate",
+      duration: "8 Weeks",
+      price_type: "Free",
+      ats_boost: 9,
+      url: "https://onlinecourses.nptel.ac.in/noc23_cs124/preview",
+      skills: ["Artificial Intelligence", "Algorithms", "Problem Solving", "AI"],
+      indicator: "Academic Rigor Favorite",
+      domain: "AI/ML",
+      svgId: "svg-nptel"
+    },
+
+    // Data Science
+    {
+      name: "Google Cloud Professional Data Engineer",
+      provider: "Google",
+      difficulty: "Advanced",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 20,
+      url: "https://cloud.google.com/learn/certification/data-engineer",
+      skills: ["Google Cloud", "BigQuery", "ETL", "Big Data", "Data Pipelines"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "Data Science",
+      svgId: "svg-google"
+    },
+    {
+      name: "IBM Data Science Professional Certificate",
+      provider: "IBM",
+      difficulty: "Beginner",
+      duration: "5 Months",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://www.coursera.org/professional-certificates/ibm-data-science",
+      skills: ["Python", "SQL", "Data Analysis", "Data Visualization", "Machine Learning"],
+      indicator: "High ATS Value",
+      domain: "Data Science",
+      svgId: "svg-ibm"
+    },
+    {
+      name: "Kaggle: Machine Learning Courses",
+      provider: "Google",
+      difficulty: "Beginner",
+      duration: "2 Weeks",
+      price_type: "Free",
+      ats_boost: 8,
+      url: "https://www.kaggle.com/learn",
+      skills: ["Python", "Pandas", "Machine Learning", "Data Visualization"],
+      indicator: "Free Interactive Labs",
+      domain: "Data Science",
+      svgId: "svg-google"
+    },
+    {
+      name: "NPTEL: Data Science for Engineers",
+      provider: "NPTEL",
+      difficulty: "Intermediate",
+      duration: "8 Weeks",
+      price_type: "Free",
+      ats_boost: 10,
+      url: "https://onlinecourses.nptel.ac.in/noc23_cs115/preview",
+      skills: ["Data Science", "R", "Python", "Linear Algebra"],
+      indicator: "Free Course",
+      domain: "Data Science",
+      svgId: "svg-nptel"
+    },
+    {
+      name: "Microsoft Certified: Azure Data Scientist Associate",
+      provider: "Microsoft Learn",
+      difficulty: "Intermediate",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 15,
+      url: "https://learn.microsoft.com/en-us/credentials/certifications/azure-data-scientist/",
+      skills: ["Azure", "Machine Learning", "Data Science", "MLOps"],
+      indicator: "High ATS Value",
+      domain: "Data Science",
+      svgId: "svg-microsoft"
+    },
+
+    // Web Development
+    {
+      name: "Meta Front-End Developer Professional Certificate",
+      provider: "Meta",
+      difficulty: "Beginner",
+      duration: "7 Months",
+      price_type: "Paid",
+      ats_boost: 14,
+      url: "https://www.coursera.org/professional-certificates/meta-front-end-developer",
+      skills: ["React", "JavaScript", "HTML", "CSS", "UI/UX", "Tailwind", "Bootstrap"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "Web Development",
+      svgId: "svg-meta"
+    },
+    {
+      name: "Meta Back-End Developer Professional Certificate",
+      provider: "Meta",
+      difficulty: "Beginner",
+      duration: "8 Months",
+      price_type: "Paid",
+      ats_boost: 15,
+      url: "https://www.coursera.org/professional-certificates/meta-back-end-developer",
+      skills: ["Python", "Django", "SQL", "APIs", "Git", "Flask", "FastAPI"],
+      indicator: "Trending in 2026",
+      domain: "Web Development",
+      svgId: "svg-meta"
+    },
+    {
+      name: "AWS Certified Developer - Associate",
+      provider: "AWS",
+      difficulty: "Intermediate",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 18,
+      url: "https://aws.amazon.com/certification/certified-developer-associate/",
+      skills: ["AWS", "Cloud Development", "Serverless", "DynamoDB", "Cloud Architecture"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "Web Development",
+      svgId: "svg-aws"
+    },
+    {
+      name: "Microsoft Certified: Azure Developer Associate",
+      provider: "Microsoft Learn",
+      difficulty: "Intermediate",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 16,
+      url: "https://learn.microsoft.com/en-us/credentials/certifications/azure-developer/",
+      skills: ["Azure", "Cloud Development", "Security", "Optimization"],
+      indicator: "High ATS Value",
+      domain: "Web Development",
+      svgId: "svg-microsoft"
+    },
+    {
+      name: "Web Design Specialization",
+      provider: "Coursera",
+      difficulty: "Beginner",
+      duration: "3 Months",
+      price_type: "Free",
+      ats_boost: 10,
+      url: "https://www.coursera.org/specializations/web-design",
+      skills: ["HTML", "CSS", "JavaScript", "Responsive Design"],
+      indicator: "Free Audit Available",
+      domain: "Web Development",
+      svgId: "svg-coursera"
+    },
+    {
+      name: "Microsoft Certified: Power Platform App Maker",
+      provider: "Microsoft Learn",
+      difficulty: "Beginner",
+      duration: "4 Weeks",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://learn.microsoft.com/en-us/credentials/certifications/power-platform-app-maker/",
+      skills: ["Low Code", "PowerApps", "Cloud Flows"],
+      indicator: "Enterprise Favorite",
+      domain: "Web Development",
+      svgId: "svg-microsoft"
+    },
+    {
+      name: "The Complete JavaScript Course 2026",
+      provider: "Udemy",
+      difficulty: "Beginner",
+      duration: "6 Weeks",
+      price_type: "Paid",
+      ats_boost: 11,
+      url: "https://www.udemy.com/course/the-complete-javascript-course/",
+      skills: ["JavaScript", "ES6", "OOP", "Web APIs"],
+      indicator: "Highest Rated Udemy Course",
+      domain: "Web Development",
+      svgId: "svg-udemy"
+    },
+
+    // DevOps
+    {
+      name: "CKA: Certified Kubernetes Administrator",
+      provider: "Google",
+      difficulty: "Advanced",
+      duration: "6 Weeks",
+      price_type: "Paid",
+      ats_boost: 25,
+      url: "https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/",
+      skills: ["Kubernetes", "Docker", "Containers", "DevOps", "Helm", "CI/CD"],
+      indicator: "High ATS Value",
+      domain: "DevOps",
+      svgId: "svg-google"
+    },
+    {
+      name: "Docker & Kubernetes: The Complete Guide",
+      provider: "Udemy",
+      difficulty: "Intermediate",
+      duration: "3 Weeks",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/",
+      skills: ["Docker", "Kubernetes", "CI/CD", "Containers", "Microservices"],
+      indicator: "Practical Hands-on Guide",
+      domain: "DevOps",
+      svgId: "svg-udemy"
+    },
+    {
+      name: "HashiCorp Certified: Terraform Associate",
+      provider: "AWS",
+      difficulty: "Intermediate",
+      duration: "4 Weeks",
+      price_type: "Paid",
+      ats_boost: 15,
+      url: "https://www.hashicorp.com/certification/terraform-associate",
+      skills: ["Terraform", "Infrastructure as Code", "AWS", "CI/CD"],
+      indicator: "Trending in 2026",
+      domain: "DevOps",
+      svgId: "svg-aws"
+    },
+    {
+      name: "AWS Certified SysOps Administrator - Associate",
+      provider: "AWS",
+      difficulty: "Intermediate",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 18,
+      url: "https://aws.amazon.com/certification/certified-sysops-admin-associate/",
+      skills: ["AWS", "SysOps", "Monitoring", "CloudFormation"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "DevOps",
+      svgId: "svg-aws"
+    },
+    {
+      name: "Introduction to DevOps and Software Engineering",
+      provider: "IBM",
+      difficulty: "Beginner",
+      duration: "4 Weeks",
+      price_type: "Free",
+      ats_boost: 12,
+      url: "https://www.coursera.org/learn/intro-devops-software-engineering",
+      skills: ["DevOps", "CI/CD", "Agile", "Cloud Native"],
+      indicator: "Free Audit Available",
+      domain: "DevOps",
+      svgId: "svg-ibm"
+    },
+    {
+      name: "NPTEL: Cloud Computing",
+      provider: "NPTEL",
+      difficulty: "Beginner",
+      duration: "12 Weeks",
+      price_type: "Free",
+      ats_boost: 10,
+      url: "https://onlinecourses.nptel.ac.in/noc23_cs119/preview",
+      skills: ["Cloud Computing", "Virtualization", "Containers"],
+      indicator: "Academic Credit Favorite",
+      domain: "DevOps",
+      svgId: "svg-nptel"
+    },
+
+    // Cybersecurity
+    {
+      name: "Google Cybersecurity Professional Certificate",
+      provider: "Google",
+      difficulty: "Beginner",
+      duration: "6 Months",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://www.coursera.org/professional-certificates/google-cybersecurity",
+      skills: ["Linux", "Python", "SQL", "Network Security", "SIEM", "IDS/IPS"],
+      indicator: "High ATS Value",
+      domain: "Cybersecurity",
+      svgId: "svg-google"
+    },
+    {
+      name: "CompTIA Security+",
+      provider: "Cisco",
+      difficulty: "Intermediate",
+      duration: "8 Weeks",
+      price_type: "Paid",
+      ats_boost: 18,
+      url: "https://www.comptia.org/certifications/security",
+      skills: ["Network Security", "Cryptography", "Identity Management", "Security"],
+      indicator: "Frequently Required by Recruiters",
+      domain: "Cybersecurity",
+      svgId: "svg-cisco"
+    },
+    {
+      name: "CEH: Certified Ethical Hacker",
+      provider: "Cisco",
+      difficulty: "Intermediate",
+      duration: "3 Months",
+      price_type: "Paid",
+      ats_boost: 20,
+      url: "https://www.eccouncil.org/train-certify/certified-ethical-hacker-ceh/",
+      skills: ["Ethical Hacking", "Penetration Testing", "Vulnerabilities"],
+      indicator: "High ATS Value",
+      domain: "Cybersecurity",
+      svgId: "svg-cisco"
+    },
+    {
+      name: "CISSP: Certified Information Systems Security Professional",
+      provider: "Cisco",
+      difficulty: "Advanced",
+      duration: "4 Months",
+      price_type: "Paid",
+      ats_boost: 28,
+      url: "https://www.isc2.org/certifications/cissp",
+      skills: ["Security Management", "Architecture", "Network Security", "Compliance"],
+      indicator: "Industry Gold Standard",
+      domain: "Cybersecurity",
+      svgId: "svg-cisco"
+    },
+    {
+      name: "Cisco: Cybersecurity Essentials",
+      provider: "Cisco",
+      difficulty: "Beginner",
+      duration: "30 Hours",
+      price_type: "Free",
+      ats_boost: 11,
+      url: "https://www.netacad.com/courses/cybersecurity/cybersecurity-essentials",
+      skills: ["Network Security", "Cybersecurity", "Cryptography"],
+      indicator: "100% Free Official Course",
+      domain: "Cybersecurity",
+      svgId: "svg-cisco"
+    },
+    {
+      name: "Microsoft Certified: SC-900 Security Fundamentals",
+      provider: "Microsoft Learn",
+      difficulty: "Beginner",
+      duration: "2 Weeks",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://learn.microsoft.com/en-us/credentials/certifications/security-compliance-and-identity-fundamentals/",
+      skills: ["Azure Security", "Active Directory", "Compliance"],
+      indicator: "Recruiter Favorite",
+      domain: "Cybersecurity",
+      svgId: "svg-microsoft"
+    },
+    {
+      name: "NPTEL: Cryptography and Network Security",
+      provider: "NPTEL",
+      difficulty: "Advanced",
+      duration: "12 Weeks",
+      price_type: "Free",
+      ats_boost: 12,
+      url: "https://onlinecourses.nptel.ac.in/noc23_cs126/preview",
+      skills: ["Cryptography", "Network Security", "Mathematics"],
+      indicator: "Advanced Theory",
+      domain: "Cybersecurity",
+      svgId: "svg-nptel"
+    },
+
+    // Mobile Development
+    {
+      name: "Google Associate Android Developer",
+      provider: "Google",
+      difficulty: "Intermediate",
+      duration: "2 Months",
+      price_type: "Paid",
+      ats_boost: 15,
+      url: "https://developers.google.com/certification/associate-android-developer",
+      skills: ["Kotlin", "Android Studio", "Android Jetpack", "Mobile Development", "Java"],
+      indicator: "Official Google Standard",
+      domain: "Mobile Development",
+      svgId: "svg-google"
+    },
+    {
+      name: "Meta iOS Developer Professional Certificate",
+      provider: "Meta",
+      difficulty: "Beginner",
+      duration: "8 Months",
+      price_type: "Paid",
+      ats_boost: 14,
+      url: "https://www.coursera.org/professional-certificates/meta-ios-developer",
+      skills: ["Swift", "iOS Development", "Xcode", "Mobile Development", "UI/UX"],
+      indicator: "Trending in 2026",
+      domain: "Mobile Development",
+      svgId: "svg-meta"
+    },
+
+    // Finance
+    {
+      name: "Chartered Financial Analyst (CFA)",
+      provider: "Oracle",
+      difficulty: "Advanced",
+      duration: "1 Year",
+      price_type: "Paid",
+      ats_boost: 30,
+      url: "https://www.cfainstitute.org/en/programs/cfa",
+      skills: ["Financial Analysis", "Portfolio Management", "Valuation", "Finance", "Accounting"],
+      indicator: "Gold Standard in Finance",
+      domain: "Finance",
+      svgId: "svg-oracle"
+    },
+    {
+      name: "Bloomberg Market Concepts (BMC)",
+      provider: "IBM",
+      difficulty: "Beginner",
+      duration: "8 Hours",
+      price_type: "Paid",
+      ats_boost: 10,
+      url: "https://www.bloomberg.com/professional/product/bloomberg-market-concepts/",
+      skills: ["Bloomberg Terminal", "Equities", "Fixed Income", "Economics"],
+      indicator: "Recruiter Favorite",
+      domain: "Finance",
+      svgId: "svg-ibm"
+    },
+    {
+      name: "Oracle Financials Cloud General Ledger Specialist",
+      provider: "Oracle",
+      difficulty: "Advanced",
+      duration: "6 Weeks",
+      price_type: "Paid",
+      ats_boost: 18,
+      url: "https://education.oracle.com/oracle-financials-cloud-general-ledger-2023-implementation-professional/pexam_1Z0-1054-23",
+      skills: ["Oracle ERP", "Financial Accounting", "General Ledger"],
+      indicator: "High ATS Value",
+      domain: "Finance",
+      svgId: "svg-oracle"
+    },
+
+    // General / Cloud foundations
+    {
+      name: "AWS Certified Cloud Practitioner",
+      provider: "AWS",
+      difficulty: "Beginner",
+      duration: "4 Weeks",
+      price_type: "Paid",
+      ats_boost: 12,
+      url: "https://aws.amazon.com/certification/certified-cloud-practitioner/",
+      skills: ["AWS", "Cloud Computing", "Cloud Architecture"],
+      indicator: "Boosts Cloud Resume Ranking",
+      domain: "General",
+      svgId: "svg-aws"
+    },
+    {
+      name: "Google IT Support Professional Certificate",
+      provider: "Google",
+      difficulty: "Beginner",
+      duration: "6 Months",
+      price_type: "Paid",
+      ats_boost: 10,
+      url: "https://www.coursera.org/professional-certificates/google-it-support",
+      skills: ["IT Support", "Operating Systems", "Networking", "Security"],
+      indicator: "Recruiter Favorite",
+      domain: "General",
+      svgId: "svg-google"
+    }
+  ];
+
+  // 3. Smart Recommender Algorithm
+  function generateRecommendations() {
+    let recommendations = [];
+
+    // Prioritize and score all certifications
+    MASTER_CERTIFICATIONS.forEach(cert => {
+      let score = 0;
+      let reasonTags = [];
+      let isCriticalFix = false;
+
+      // Rule A: Matches Detected Domain (Huge Boost)
+      // Map frontend "AI/ML" and backend "Data Science" intelligently
+      let certDomainLower = cert.domain.toLowerCase();
+      let matchDomain = false;
+      
+      if (userDomainLower === "ai/ml" || userDomainLower === "data science") {
+        if (certDomainLower === "ai/ml" || certDomainLower === "data-science" || certDomainLower === "data science") {
+          matchDomain = true;
+        }
+      } else if (certDomainLower === userDomainLower) {
+        matchDomain = true;
+      } else if (certDomainLower === "general") {
+        score += 5; // General certs get a small baseline
+      }
+
+      if (matchDomain) {
+        score += 50;
+        reasonTags.push("Domain Match");
+      }
+
+      // Rule B: Fills Missing Keyword Gap (Ultimate Boost)
+      let matchedMissingKeywords = [];
+      cert.skills.forEach(skill => {
+        let skillLower = skill.toLowerCase();
+        if (missingKeywordsLower.includes(skillLower)) {
+          score += 40;
+          matchedMissingKeywords.push(skill);
+          isCriticalFix = true;
+        }
+      });
+
+      if (matchedMissingKeywords.length > 0) {
+        reasonTags.push(`Fills Gaps: ${matchedMissingKeywords.slice(0, 2).join(', ')}`);
+      }
+
+      // Rule C: Matches User's Existing Skills (Reinforces Strengths)
+      let matchedExistingSkills = 0;
+      cert.skills.forEach(skill => {
+        if (userSkillsLower.includes(skill.toLowerCase())) {
+          score += 10;
+          matchedExistingSkills++;
+        }
+      });
+
+      // Scale sorting score
+      cert.relevanceScore = score;
+      cert.reasonTags = reasonTags;
+      cert.isCriticalFix = isCriticalFix;
+      cert.matchedMissingKeywords = matchedMissingKeywords;
+      
+      // Keep certifications that have positive scores, or align with the domain/general
+      if (score > 10 || cert.domain === "General" || matchDomain) {
+        recommendations.push(cert);
+      }
+    });
+
+    // Sort by relevance score descending, then by ATS boost descending
+    recommendations.sort((a, b) => {
+      if (b.relevanceScore !== a.relevanceScore) {
+        return b.relevanceScore - a.relevanceScore;
+      }
+      return b.ats_boost - a.ats_boost;
+    });
+
+    return recommendations;
+  }
+
+  // 4. State Management
+  let certList = generateRecommendations();
+  let currentFilters = {
+    search: '',
+    domain: 'all',
+    level: 'all',
+    price: 'all'
+  };
+
+  // Pre-activate current domain in filters if available
+  const domainButtons = document.querySelectorAll('#filter-domain .filter-pill');
+  let domainHasMatch = false;
+  domainButtons.forEach(btn => {
+    const val = btn.getAttribute('data-value');
+    if (val && val.toLowerCase() === userDomainLower) {
+      domainButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilters.domain = val;
+      domainHasMatch = true;
+    }
+  });
+  
+  if (!domainHasMatch) {
+    // If domain isn't in filter set, default to 'all' or fallback
+    currentFilters.domain = 'all';
+  }
+
+  // 5. DOM Elements
+  const searchInput = document.getElementById('cert-search-input');
+  const clearBtn = document.getElementById('search-clear-btn');
+  const certsGrid = document.getElementById('certs-grid');
+  const emptyState = document.getElementById('certs-empty-state');
+
+  // Helper to retrieve SVG content by ID
+  function getSvgLogo(svgId) {
+    const template = document.getElementById(svgId);
+    return template ? template.outerHTML : '<span style="font-size: 1.5rem;">🎓</span>';
+  }
+
+  // 6. Rendering Logic
+  function renderCertifications() {
+    certsGrid.innerHTML = '';
+    
+    // Filter the recommendations
+    let filteredCerts = certList.filter(cert => {
+      // A. Search Match
+      if (currentFilters.search) {
+        const query = currentFilters.search.toLowerCase();
+        const matchesName = cert.name.toLowerCase().includes(query);
+        const matchesProvider = cert.provider.toLowerCase().includes(query);
+        const matchesSkills = cert.skills.some(s => s.toLowerCase().includes(query));
+        if (!matchesName && !matchesProvider && !matchesSkills) return false;
+      }
+
+      // B. Domain Match
+      if (currentFilters.domain !== 'all') {
+        // AI/ML and Data Science cross-matching flexibility
+        const targetDomain = currentFilters.domain.toLowerCase();
+        const certDomain = cert.domain.toLowerCase();
+        if (targetDomain === 'ai/ml' && certDomain !== 'ai/ml') return false;
+        if (targetDomain === 'data science' && certDomain !== 'data science') return false;
+        if (targetDomain !== 'ai/ml' && targetDomain !== 'data science' && certDomain !== targetDomain) return false;
+      }
+
+      // C. Difficulty Level Match
+      if (currentFilters.level !== 'all') {
+        if (cert.difficulty.toLowerCase() !== currentFilters.level.toLowerCase()) return false;
+      }
+
+      // D. Price Type Match
+      if (currentFilters.price !== 'all') {
+        if (cert.price_type.toLowerCase() !== currentFilters.price.toLowerCase()) return false;
+      }
+
+      return true;
+    });
+
+    // Handle Empty State
+    if (filteredCerts.length === 0) {
+      certsGrid.style.display = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    certsGrid.style.display = 'grid';
+    emptyState.style.display = 'none';
+
+    // Inject cards into Grid
+    filteredCerts.forEach((cert, index) => {
+      const card = document.createElement('div');
+      card.className = 'cert-card glass fade-card';
+      card.style.animationDelay = `${index * 80}ms`;
+
+      // Render reasoning badge if any
+      let reasonBadge = '';
+      if (cert.isCriticalFix) {
+        reasonBadge = `<span class="cert-reason-badge critical">🔥 Fills Skill Gap</span>`;
+      } else if (cert.reasonTags.includes("Domain Match")) {
+        reasonBadge = `<span class="cert-reason-badge domain">🎯 Core Domain</span>`;
+      }
+
+      // Difficulty tag class mapping
+      let diffClass = 'tag-purple';
+      if (cert.difficulty === 'Beginner') diffClass = 'tag-green';
+      else if (cert.difficulty === 'Intermediate') diffClass = 'tag-cyan';
+      else if (cert.difficulty === 'Advanced') diffClass = 'tag-purple';
+
+      // Skills covered HTML
+      const skillsHTML = cert.skills.map(skill => {
+        const isMissing = cert.matchedMissingKeywords && cert.matchedMissingKeywords.includes(skill);
+        return `<span class="cert-skill-pill ${isMissing ? 'missing-skill-highlight' : ''}">${skill}</span>`;
+      }).join('');
+
+      card.innerHTML = `
+        <!-- Glow Overlay -->
+        <div class="cert-card-glow"></div>
+        
+        <!-- Top Row with Logo & Boost -->
+        <div class="cert-card-header">
+          <div class="cert-logo-container">
+            ${getSvgLogo(cert.svgId)}
+          </div>
+          <div class="cert-boost-container">
+            <span class="cert-boost-tag">+${cert.ats_boost}% ATS Boost</span>
+          </div>
+        </div>
+
+        <!-- Title & Provider -->
+        <div class="cert-title-area">
+          <h3 class="cert-card-title">${cert.name}</h3>
+          <span class="cert-provider-name">${cert.provider}</span>
+        </div>
+
+        <!-- Badges Area -->
+        <div class="cert-meta-badges">
+          <span class="tag ${diffClass}">${cert.difficulty}</span>
+          <span class="tag tag-blue">${cert.duration}</span>
+          <span class="tag tag-amber">${cert.price_type}</span>
+        </div>
+
+        <!-- Description -->
+        <p class="cert-description">
+          Official certification covering core architectural patterns and practical applications to enhance your profile.
+        </p>
+
+        <!-- Indicator Tag -->
+        <div class="cert-indicator-bar">
+          <span class="cert-indicator-pill">${cert.indicator}</span>
+          ${reasonBadge}
+        </div>
+
+        <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.06); margin: 16px 0;" />
+
+        <!-- Skills Covered -->
+        <div class="cert-skills-area">
+          <span class="cert-section-title">Skills Targeted</span>
+          <div class="cert-skills-list">
+            ${skillsHTML}
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="cert-action-wrapper" style="margin-top: auto;">
+          <a href="${cert.url}" target="_blank" rel="noopener noreferrer" class="cert-btn-primary">
+            Visit Official Program <span class="arrow">→</span>
+          </a>
+        </div>
+      `;
+
+      certsGrid.appendChild(card);
+    });
+
+    // Stagger entry animation using GSAP if loaded
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo('.cert-card', 
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: 'power3.out', overwrite: 'auto' }
+      );
+    }
+  }
+
+  // 7. Event Listeners
+  // Live Search
+  searchInput.addEventListener('input', (e) => {
+    currentFilters.search = e.target.value;
+    clearBtn.style.display = currentFilters.search ? 'inline' : 'none';
+    renderCertifications();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    currentFilters.search = '';
+    clearBtn.style.display = 'none';
+    renderCertifications();
+  });
+
+  // Filter Pill Event Handler
+  function setupPillFilters(containerId, filterKey) {
+    const pills = document.querySelectorAll(`#${containerId} .filter-pill`);
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilters[filterKey] = pill.getAttribute('data-value');
+        renderCertifications();
+      });
+    });
+  }
+
+  setupPillFilters('filter-domain', 'domain');
+  setupPillFilters('filter-level', 'level');
+  setupPillFilters('filter-price', 'price');
+
+  // Dynamic Mouse Hover Glow tracking
+  document.getElementById('certs-grid').addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.cert-card');
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    }
+  });
+
+  // Initial render
+  renderCertifications();
+});
+</script>
+
+<style>
+/* ── Certification Section Custom Styles ── */
+.certs-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 24px;
+}
+
+/* Glassmorphic Cert Card */
+.cert-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  min-height: 480px;
+}
+
+/* Glowing Border Accent on Hover */
+.cert-card-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 0%), rgba(139, 92, 246, 0.12), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+.cert-card:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(6, 182, 212, 0.35) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.15) !important;
+}
+
+.cert-card:hover .cert-card-glow {
+  opacity: 1;
+}
+
+/* Card Header elements */
+.cert-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.cert-logo-container {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.cert-boost-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--emerald);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 4px 10px;
+  border-radius: 99px;
+  letter-spacing: -0.01em;
+}
+
+/* Title & Description */
+.cert-title-area {
+  margin-bottom: 12px;
+}
+
+.cert-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.cert-provider-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.cert-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.cert-description {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Indicators and reasons */
+.cert-indicator-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cert-indicator-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(6, 182, 212, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 182, 212, 0.15);
+}
+
+.cert-reason-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.cert-reason-badge.critical {
+  color: #F87171;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.cert-reason-badge.domain {
+  color: var(--purple-light);
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Skills list */
+.cert-skills-area {
+  margin-bottom: 20px;
+}
+
+.cert-section-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.cert-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cert-skill-pill {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border-radius: 6px;
+}
+
+.cert-skill-pill.missing-skill-highlight {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #A7F3D0;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+}
+
+/* Action button style */
+.cert-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.cert-card:hover .cert-btn-primary {
+  background: linear-gradient(135deg, var(--indigo), var(--purple-dark));
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.cert-btn-primary .arrow {
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.cert-btn-primary:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* Level/Domain Pill Filters */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 80px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, var(--indigo), var(--purple-dark));
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+/* Stagger card entry animation fallback */
+@keyframes cardEntry {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-card {
+  opacity: 0;
+  animation: cardEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+</style>

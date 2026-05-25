@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>University Verification — AI Resume Analyzer</title>
+  <meta name="description" content="Verify your university student or alumni status via email to get a verified badge on your resume analysis." />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">⚡ ResumeAI</a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link-text">Home</a></li>
+        <li><a href="/dashboard" class="nav-link-text">📊 Dashboard</a></li>
+        <li><a href="/upload" class="btn-nav nav-link-text">Analyze Resume →</a></li>
+        <li><a href="/auth" class="btn-nav nav-link-text">🔐 Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="container" style="padding-top:120px; padding-bottom:80px; max-width:700px;">
+
+      <!-- Loading state -->
+      <div id="loading-state" style="text-align:center; padding:80px 0;">
+        <div class="spinner" style="margin-bottom:20px;"></div>
+        <p style="color:var(--purple-light); font-weight:500;">Loading verification data...</p>
+      </div>
+
+      <!-- Main content (shown after API response) -->
+      <div id="verify-content" style="display:none;">
+
+        <!-- Page header -->
+        <div style="text-align:center; margin-bottom:40px;">
+          <p class="section-label">Step 3 of 3</p>
+          <h1 style="font-family:'Space Grotesk',sans-serif; font-size:clamp(1.8rem,5vw,2.8rem); font-weight:700; margin-bottom:12px;">
+            University <span class="gradient-text">Verification</span>
+          </h1>
+          <p style="color:var(--text-secondary);">
+            Verify your university affiliation to add a trusted badge to your profile.
+          </p>
+        </div>
+
+        <!-- Already Verified state -->
+        <div id="verified-state" style="display:none; text-align:center;">
+          <div class="glass-static" style="padding:48px 32px;">
+            <div style="font-size:4rem; margin-bottom:16px;">🎓</div>
+            <h2 style="font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; margin-bottom:8px;">
+              Already Verified!
+            </h2>
+            <p style="color:var(--text-secondary); margin-bottom:20px;">
+              Your email has been successfully verified.
+            </p>
+            <span class="tag tag-green" style="font-size:0.9rem; padding:8px 20px;">✅ Verified</span>
+          </div>
+        </div>
+
+        <!-- Verification Form -->
+        <div id="verify-form-wrap">
+
+          <!-- Detected University Card -->
+          <div class="glass result-card" style="padding:24px; margin-bottom:20px;">
+            <p class="section-label" style="margin-bottom:14px;">🔍 Detected from Your Resume</p>
+
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:200px;">
+                <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:4px;">University Name</p>
+                <p id="detected-university" style="font-size:1.1rem; font-weight:600;"></p>
+              </div>
+              <div id="validity-badge" style="flex-shrink:0;"></div>
+            </div>
+
+            <!-- Matched result (if valid) -->
+            <div id="matched-info" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border-glass);">
+              <div style="display:flex; gap:24px; flex-wrap:wrap;">
+                <div>
+                  <p style="color:var(--text-muted); font-size:0.78rem; margin-bottom:2px;">Matched Name</p>
+                  <p id="matched-name" style="font-weight:600; font-size:0.9rem;"></p>
+                </div>
+                <div>
+                  <p style="color:var(--text-muted); font-size:0.78rem; margin-bottom:2px;">Email Domain</p>
+                  <p id="matched-domain" style="font-family:monospace; font-size:0.9rem; color:var(--cyan);"></p>
+                </div>
+                <div>
+                  <p style="color:var(--text-muted); font-size:0.78rem; margin-bottom:2px;">Country</p>
+                  <p id="matched-country" style="font-size:0.9rem;"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Not found info -->
+            <div id="not-found-info" style="display:none; margin-top:12px;">
+              <p style="color:var(--amber); font-size:0.88rem;">
+                ⚠️ University not found in our dataset. You can still proceed with email verification below.
+              </p>
+            </div>
+          </div>
+
+          <!-- Email Input Card -->
+          <div class="glass result-card" style="padding:28px; margin-bottom:20px;" id="email-card">
+            <p class="section-label" style="margin-bottom:16px;">📧 Enter Your Email</p>
+
+            <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:20px;">
+              We'll send a verification link to your email address.
+            </p>
+
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+              <div style="flex:1; min-width:240px;">
+                <label style="font-size:0.82rem; color:var(--text-muted); display:block; margin-bottom:8px;">Email Address</label>
+                <input
+                  type="email"
+                  id="email-input"
+                  class="form-input"
+                  placeholder="name@example.com"
+                  autocomplete="email"
+                />
+                <p id="domain-hint" style="font-size:0.78rem; color:var(--cyan); margin-top:6px; display:none;"></p>
+              </div>
+              <button id="send-btn" class="btn btn-primary" onclick="sendVerification()">
+                📨 Send Verification
+              </button>
+            </div>
+
+            <div id="send-status" style="display:none; margin-top:16px; padding:14px 18px; border-radius:var(--radius-md);"></div>
+          </div>
+
+          <!-- Info box -->
+          <div class="glass-static" style="padding:20px 24px; margin-bottom:20px;">
+            <p class="section-label" style="margin-bottom:10px;">ℹ️ How It Works</p>
+            <ul style="display:flex; flex-direction:column; gap:8px;">
+              <li style="display:flex; gap:8px; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="color:var(--purple-light); flex-shrink:0;">1.</span>
+                Enter your email address above.
+              </li>
+              <li style="display:flex; gap:8px; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="color:var(--purple-light); flex-shrink:0;">2.</span>
+                We send a verification link to that email.
+              </li>
+              <li style="display:flex; gap:8px; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="color:var(--purple-light); flex-shrink:0;">3.</span>
+                Click the link in the email to confirm your identity.
+              </li>
+              <li style="display:flex; gap:8px; font-size:0.88rem; color:var(--text-secondary);">
+                <span style="color:var(--purple-light); flex-shrink:0;">4.</span>
+                Your profile is marked <strong style="color:var(--green);">✅ Verified</strong>.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Back to results -->
+          <div style="text-align:center;">
+            <a id="back-to-results" href="#" class="btn btn-outline">← Back to Results</a>
+          </div>
+
+        </div><!-- /verify-form-wrap -->
+      </div><!-- /verify-content -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer
+    style="border-top:1px solid var(--border-glass); padding: 24px 0; text-align:center; color:var(--text-muted); font-size:0.85rem; position:relative; z-index:1;">
+    <p>© 2026 AI Resume Analyzer · Built with Flask + Three.js + GSAP</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/three_bg.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script>
+    const RESUME_ID = new URLSearchParams(window.location.search).get('resume_id');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initThreeBackground('three-canvas');
+
+      if (!RESUME_ID) {
+        document.getElementById('loading-state').innerHTML =
+          '<p style="color:#ef4444;">No resume ID provided. <a href="/upload" style="color:var(--purple-light);">Go to Upload →</a></p>';
+        return;
+      }
+
+      document.getElementById('back-to-results').href = `/result/${RESUME_ID}`;
+      await loadVerificationStatus();
+    });
+
+    async function loadVerificationStatus() {
+      try {
+        const res = await fetch(`/api/verification-status/${RESUME_ID}`);
+        const text = await res.text();
+
+
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          throw new Error("Server returned HTML instead of JSON");
+        }
+
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('verify-content').style.display = 'block';
+
+        // GSAP entry if present
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo('#verify-content > *',
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out' }
+          );
+        }
+
+        if (data.verified) {
+          document.getElementById('verified-state').style.display = 'block';
+          document.getElementById('verify-form-wrap').style.display = 'none';
+          return;
+        }
+
+        const uniName = data.university_name || 'Not detected';
+        document.getElementById('detected-university').textContent = uniName;
+
+        const badge = document.getElementById('validity-badge');
+
+        if (data.valid_university) {
+          badge.innerHTML = '<span class="tag tag-green">✅ In Dataset</span>';
+
+          document.getElementById('matched-info').style.display = 'block';
+          document.getElementById('matched-name').textContent = data.university_match || '';
+          document.getElementById('matched-domain').textContent = data.university_domain || '';
+
+          if (data.university_domain) {
+            const hint = document.getElementById('domain-hint');
+            hint.textContent = `Expected: @${data.university_domain}`;
+            hint.style.display = 'block';
+          }
+        } else {
+          badge.innerHTML = '<span class="tag tag-amber">⚠️ Not in Dataset</span>';
+          document.getElementById('not-found-info').style.display = 'block';
+        }
+
+      } catch (e) {
+        document.getElementById('loading-state').innerHTML =
+          `<p style="color:#ef4444;">❌ Error: ${e.message}</p>`;
+      }
+    }
+
+
+    async function sendVerification() {
+      const email = document.getElementById('email-input').value.trim();
+
+      if (!email || !email.includes('@')) {
+        alert("Enter valid email");
+        return;
+      }
+
+      const btn = document.getElementById('send-btn');
+      btn.disabled = true;
+      btn.innerHTML = "Sending...";
+
+      const statusEl = document.getElementById('send-status');
+
+      try {
+        const res = await fetch('/api/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resume_id: parseInt(RESUME_ID),
+            email: email
+          })
+        });
+
+        const text = await res.text();
+
+
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          throw new Error("Invalid server response");
+        }
+
+        statusEl.style.display = 'block';
+
+        if (data.success) {
+          statusEl.style.background = 'rgba(16,185,129,0.1)';
+          statusEl.style.border = '1px solid rgba(16,185,129,0.3)';
+          statusEl.style.color = '#34d399';
+          statusEl.innerHTML = `✅ ${data.message}`;
+          btn.innerHTML = "Sent ✅";
+        } else {
+          statusEl.style.background = 'rgba(239,68,68,0.1)';
+          statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+          statusEl.style.color = '#f87171';
+          statusEl.innerHTML = `❌ ${data.message || data.error}`;
+          btn.disabled = false;
+          btn.innerHTML = "Send Verification";
+        }
+
+      } catch (e) {
+        statusEl.style.display = 'block';
+        statusEl.style.background = 'rgba(239,68,68,0.1)';
+        statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+        statusEl.style.color = '#f87171';
+        statusEl.innerHTML = `❌ ${e.message}`;
+        btn.disabled = false;
+        btn.innerHTML = "Send Verification";
+      }
+    }
+  </script>
+</body>
+</html>

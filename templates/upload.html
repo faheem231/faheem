@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Resume — AI Resume Analyzer</title>
+  <meta name="description" content="Upload your PDF or DOCX resume for instant AI-powered ATS analysis and scoring." />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">⚡ ResumeAI</a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link-text">Home</a></li>
+        <li><a href="/dashboard" class="nav-link-text">📊 Dashboard</a></li>
+        <li><a href="/upload" class="btn-nav nav-link-text" style="color: var(--text-primary)">Analyze Resume →</a></li>
+        <li><a href="/auth" class="btn-nav nav-link-text">🔐 Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="container" style="padding-top: 140px; padding-bottom: 100px; max-width: 760px;">
+
+      <!-- Page Header -->
+      <div style="text-align:center; margin-bottom: 56px;" class="fade-up">
+        <p class="section-label">Step 1 of 3</p>
+        <h1 style="font-size:clamp(2rem,5vw,3.5rem); margin-bottom:16px;">
+          Upload Your <span class="text-gradient-purple">Resume</span>
+        </h1>
+        <p style="color:var(--text-secondary); font-size:1.1rem;">
+          Supports PDF & DOCX · Max 10MB · Instant Analysis
+        </p>
+      </div>
+
+      <!-- Upload Card -->
+      <div class="glass-static fade-up" style="padding: 40px; margin-bottom: 32px; animation-delay: 0.1s;">
+
+        <!-- Drop Zone -->
+        <div id="drop-zone" class="upload-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">📄</div>
+          <p class="upload-label" style="font-size:1.1rem; font-weight:600; margin-bottom:12px; color:var(--text-primary);">
+            Drag & drop your resume here
+          </p>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:24px;">
+            or click to browse files
+          </p>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <span class="tag tag-purple">PDF</span>
+            <span class="tag tag-cyan">DOCX</span>
+            <span class="tag tag-green">Max 10MB</span>
+          </div>
+        </div>
+
+        <!-- Hidden file input -->
+        <input type="file" id="file-input" accept=".pdf,.docx" style="display:none" />
+
+        <!-- Selected file info -->
+        <div id="file-info" style="display:none; margin-top:24px;" class="glass-static">
+          <div style="padding:20px 24px; display:flex; align-items:center; gap:16px;">
+            <span style="font-size:2rem; padding:12px; background:rgba(255,255,255,0.05); border-radius:12px;">📎</span>
+            <div style="flex:1;">
+              <p id="file-name" style="font-weight:600; font-size:1rem; color:var(--text-primary);"></p>
+              <p id="file-size" style="color:var(--text-secondary); font-size:0.85rem; margin-top:4px;"></p>
+            </div>
+            <button onclick="clearFile()" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); border-radius:8px; color:var(--red); cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; transition:var(--transition);" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'" title="Remove">✕</button>
+          </div>
+        </div>
+
+        <!-- Upload progress bar -->
+        <div id="upload-progress-wrap" style="display:none; margin-top:24px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:0.9rem; font-weight:500; color:var(--text-secondary);">Uploading...</span>
+            <span id="progress-pct" style="font-size:0.9rem; font-weight:600; color:var(--cyan);">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div id="upload-bar" class="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Analyzing loader -->
+        <div id="analyzing-wrap" style="display:none; margin-top:32px; text-align:center;">
+          <div class="spinner" style="margin-bottom:20px;"></div>
+          <p style="color:var(--cyan); font-weight:600; font-size:1.1rem; letter-spacing:0.02em;">🧠 AI is analyzing your resume...</p>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">Extracting skills, scoring ATS compatibility</p>
+        </div>
+
+        <!-- Submit button -->
+        <div style="margin-top:32px;">
+          <button id="analyze-btn" class="btn btn-primary" style="width:100%; font-size:1.1rem; padding:16px;" disabled onclick="startUpload()">
+            🔍 Analyze Resume
+          </button>
+        </div>
+
+      </div><!-- /upload card -->
+
+      <!-- Tips card -->
+      <div class="glass-static fade-up" style="padding: 32px; animation-delay: 0.2s;">
+        <p class="section-label" style="margin-bottom:16px;">💡 Tips for a Higher Score</p>
+        <ul style="display:grid; gap:14px;">
+          <li style="display:flex; gap:12px; align-items:flex-start; font-size:0.95rem; color:var(--text-secondary);">
+            <span style="color:var(--emerald); flex-shrink:0;">✓</span>
+            Include a <strong style="color:var(--text-primary);">Skills section</strong> with specific technologies and tools.
+          </li>
+          <li style="display:flex; gap:12px; align-items:flex-start; font-size:0.95rem; color:var(--text-secondary);">
+            <span style="color:var(--emerald); flex-shrink:0;">✓</span>
+            Use <strong style="color:var(--text-primary);">standard section headings</strong> like Experience, Education, Certifications.
+          </li>
+          <li style="display:flex; gap:12px; align-items:flex-start; font-size:0.95rem; color:var(--text-secondary);">
+            <span style="color:var(--emerald); flex-shrink:0;">✓</span>
+            Add <strong style="color:var(--text-primary);">quantifiable achievements</strong> (e.g., "Improved performance by 40%").
+          </li>
+          <li style="display:flex; gap:12px; align-items:flex-start; font-size:0.95rem; color:var(--text-secondary);">
+            <span style="color:var(--emerald); flex-shrink:0;">✓</span>
+            Avoid tables and graphics — <strong style="color:var(--text-primary);">ATS systems prefer plain text</strong>.
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border-glass); padding: 32px 0; text-align:center; color:var(--text-muted); font-size:0.85rem; position:relative; z-index:1; background:var(--bg-mid);">
+    <p>© 2026 AI Resume Analyzer · Built with Flask + Three.js + GSAP</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/three_bg.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeBackground('three-canvas');
+    });
+
+    let selectedFile = null;
+
+    // ── Drag & Drop ────────────────────────────────────────────────────────
+    const dropZone = document.getElementById('drop-zone');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFileSelected(file);
+    });
+
+    // ── File Input ─────────────────────────────────────────────────────────
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      if (e.target.files[0]) handleFileSelected(e.target.files[0]);
+    });
+
+    function handleFileSelected(file) {
+      const allowed = ['application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (!['pdf', 'docx'].includes(ext)) {
+        showToast('Only PDF and DOCX files are supported.', 'error');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('File exceeds 10MB limit.', 'error');
+        return;
+      }
+
+      selectedFile = file;
+      document.getElementById('file-name').textContent = file.name;
+      document.getElementById('file-size').textContent = formatBytes(file.size);
+      document.getElementById('file-info').style.display = 'block';
+      document.getElementById('analyze-btn').disabled = false;
+
+      animateFileDropped(file.name);
+    }
+
+    function clearFile() {
+      selectedFile = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('file-info').style.display = 'none';
+      document.getElementById('analyze-btn').disabled = true;
+      document.querySelector('.upload-label').textContent = 'Drag & drop your resume here';
+      document.querySelector('.upload-label').style.color = '';
+    }
+
+    // ── Upload & Analyze ───────────────────────────────────────────────────
+    async function startUpload() {
+      if (!selectedFile) return;
+
+      const btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Uploading...';
+
+      // Show progress bar
+      document.getElementById('upload-progress-wrap').style.display = 'block';
+      simulateProgressBar();
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+        // Show analyzing spinner
+        document.getElementById('upload-progress-wrap').style.display = 'none';
+        document.getElementById('analyzing-wrap').style.display = 'block';
+
+        // Trigger analysis
+        const analyzeRes = await fetch(`/api/analyze/${data.resume_id}`);
+        if (!analyzeRes.ok) {
+          const err = await analyzeRes.json();
+          throw new Error(err.error || 'Analysis failed');
+        }
+
+        showToast('Analysis complete! Redirecting...', 'success');
+        setTimeout(() => window.location.href = `/result/${data.resume_id}`, 800);
+
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '🔍 Analyze Resume';
+        document.getElementById('upload-progress-wrap').style.display = 'none';
+        document.getElementById('analyzing-wrap').style.display = 'none';
+      }
+    }
+
+    function simulateProgressBar() {
+      let pct = 0;
+      const bar = document.getElementById('upload-bar');
+      const pctEl = document.getElementById('progress-pct');
+      const iv = setInterval(() => {
+        pct = Math.min(pct + Math.random() * 12, 90);
+        bar.style.width = pct + '%';
+        pctEl.textContent = Math.round(pct) + '%';
+        if (pct >= 90) clearInterval(iv);
+      }, 200);
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+  </script>
+</body>
+</html>

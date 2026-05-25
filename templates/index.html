@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Analyzer — Smart ATS Scoring & Skills Extraction</title>
+  <meta name="description"
+    content="Analyze your resume with AI. Get an ATS score, extract skills, identify missing keywords, and receive actionable improvement suggestions." />
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+
+<body>
+
+  <!-- Three.js Canvas -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- Decorative orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">⚡ ResumeAI</a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link-text" style="color: var(--text-primary)">Home</a></li>
+        <li><a href="/dashboard" class="nav-link-text">📊 Dashboard</a></li>
+        <li><a href="/upload" class="btn-nav nav-link-text">Analyze Resume →</a></li>
+        <li><a href="/auth" class="btn-nav nav-link-text">🔐 Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="page-wrapper">
+    <div class="container">
+
+      <!-- ── Hero ─────────────────────────────────────────────────────── -->
+      <section class="hero">
+        <div class="hero-eyebrow fade-up">
+          <span style="color:var(--cyan)">✨</span> AI-Powered Resume Intelligence
+        </div>
+
+        <h1 class="fade-up">
+          Make Your Resume<br />
+          <span class="text-gradient-purple">Stand Out & Get Hired</span>
+        </h1>
+
+        <p class="fade-up">
+          Upload your resume and instantly receive an ATS compatibility score,
+          extracted skills, missing keyword insights, and personalized improvement suggestions.
+        </p>
+
+        <div class="hero-cta fade-up">
+          <a href="/upload" class="btn btn-primary">
+            <span>🚀</span> Analyze My Resume
+          </a>
+          <a href="#features" class="btn btn-outline">
+            <span>📖</span> Learn More
+          </a>
+        </div>
+      </section>
+
+      <!-- ── Stats Strip ────────────────────────────────────────────────── -->
+      <div class="glass-static fade-up" style="margin-bottom: 80px; padding: 2px;">
+        <div class="stat-strip">
+          <div class="stat-item">
+            <div class="stat-value" data-count="95" data-suffix="%">0%</div>
+            <div class="stat-label">ATS Accuracy</div>
+          </div>
+          <div class="stat-item" style="border-left: 1px solid var(--border-glass);">
+            <div class="stat-value" data-count="150" data-suffix="+">0+</div>
+            <div class="stat-label">Skills Detected</div>
+          </div>
+          <div class="stat-item" style="border-left: 1px solid var(--border-glass);">
+            <div class="stat-value" data-count="6" data-suffix=""></div>
+            <div class="stat-label">Domains Supported</div>
+          </div>
+          <div class="stat-item" style="border-left: 1px solid var(--border-glass);">
+            <div class="stat-value" data-count="100" data-suffix="+">0+</div>
+            <div class="stat-label">Universities</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Features ──────────────────────────────────────────────────── -->
+      <section id="features" style="padding-bottom: 80px;">
+        <div style="text-align:center; margin-bottom: 48px;" class="fade-up">
+          <p class="section-label">What We Offer</p>
+          <h2 style="font-size:clamp(1.8rem,4vw,2.8rem);">
+            Everything You Need to <span class="gradient-text">Land Your Dream Job</span>
+          </h2>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+
+          <!-- Card 1 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">🎯</div>
+            <h3>ATS Score Analysis</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Get a real-time compatibility score (0–100) based
+              on skills, education, experience, and formatting quality.</p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">🧠</div>
+            <h3>AI Skills Extraction</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">NLP-powered engine detects 150+ technical and soft
+              skills across Data Science, Web Dev, Finance, and more.</p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">📋</div>
+            <h3>Missing Keywords</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Identify keywords that ATS systems look for in
+              your domain and are currently missing from your resume.</p>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">💡</div>
+            <h3>Smart Suggestions</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Receive tailored, actionable improvement tips
+              personalized to your career domain and current resume gaps.</p>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">🎓</div>
+            <h3>University Verification</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Automatically detect your university from the
+              resume and verify your student/alumni status via email.</p>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="glass feature-card fade-up">
+            <div class="feature-icon">📜</div>
+            <h3>Cert Recommendations</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;">Get domain-specific certification suggestions to
+              boost your credibility and fill skill gaps.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── How It Works ───────────────────────────────────────────────── -->
+      <section style="margin-bottom: 80px;">
+        <div style="text-align:center; margin-bottom: 48px;" class="fade-up">
+          <p class="section-label">Process</p>
+          <h2 style="font-size:clamp(1.8rem,4vw,2.5rem);">
+            Three Steps to a Better Resume
+          </h2>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px; position:relative;">
+          <div class="glass-static fade-up" style="padding:40px 28px; text-align:center;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.5rem;margin:0 auto 24px;color:var(--purple-light);box-shadow:var(--glow-primary);">1</div>
+            <h3 style="margin-bottom:12px;">Upload Your Resume</h3>
+            <p style="color:var(--text-secondary);font-size:0.95rem;">Drag & drop or click to upload your PDF or DOCX resume file. We accept any modern resume format.</p>
+          </div>
+
+          <div class="glass-static fade-up" style="padding:40px 28px; text-align:center; animation-delay:0.1s;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.5rem;margin:0 auto 24px;color:var(--cyan);box-shadow:0 0 30px rgba(6,182,212,0.2);">2</div>
+            <h3 style="margin-bottom:12px;">AI Analysis</h3>
+            <p style="color:var(--text-secondary);font-size:0.95rem;">Our NLP engine extracts skills, education, and experience while our ATS algorithm calculates your score.</p>
+          </div>
+
+          <div class="glass-static fade-up" style="padding:40px 28px; text-align:center; animation-delay:0.2s;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.5rem;margin:0 auto 24px;color:var(--emerald);box-shadow:var(--glow-success);">3</div>
+            <h3 style="margin-bottom:12px;">Get Results</h3>
+            <p style="color:var(--text-secondary);font-size:0.95rem;">See your ATS score, skills map, missing keywords, and personalized tips — instantly, for free.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CTA Banner ─────────────────────────────────────────────────── -->
+      <section style="margin-bottom: 80px;" class="fade-up">
+        <div class="gradient-border">
+          <div style="padding:60px 48px; text-align:center;">
+            <h2 style="font-size:2.2rem; margin-bottom:16px;">
+              Ready to Optimize Your Resume?
+            </h2>
+            <p style="color:var(--text-secondary); margin-bottom:32px; font-size:1.1rem; max-width:500px; margin-left:auto; margin-right:auto;">
+              Join candidates who improved their interview call rate after using ResumeAI.
+            </p>
+            <a href="/upload" class="btn btn-primary" style="font-size:1.05rem; padding:16px 32px;">
+              🚀 Start Free Analysis
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /container -->
+  </div><!-- /page-wrapper -->
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border-glass); padding: 32px 0; text-align:center; color:var(--text-muted); font-size:0.85rem; position:relative; z-index:1; background:var(--bg-mid);">
+    <p>© 2026 AI Resume Analyzer · Built with Flask + Three.js + GSAP</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/three_bg.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script>
+    // Initialize Three.js background
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeBackground('three-canvas');
+    });
+  </script>
+</body>
+
+</html>

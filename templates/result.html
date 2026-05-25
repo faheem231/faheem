@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analysis Result — AI Resume Analyzer</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+  <style>
+    /* ── Local Result Styles ── */
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .score-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .score-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% -20%, rgba(139, 92, 246, 0.15), transparent 70%);
+      pointer-events: none;
+    }
+
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .score-circle svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.2));
+    }
+
+    .score-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-width: 8;
+    }
+
+    .score-fill {
+      fill: none;
+      stroke-linecap: round;
+      stroke-width: 8;
+      transition: stroke-dashoffset 1.5s var(--ease-spring);
+    }
+
+    .score-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .keyword-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 4px;
+      transition: var(--transition-fast);
+    }
+
+    .keyword-pill:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .missing-keyword {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.2);
+      color: #FCA5A5;
+    }
+
+    .missing-keyword:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #FECACA;
+    }
+
+    .tip-card {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .verify-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.02));
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    /* ── Premium CTA Section Styles ── */
+    .cert-cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .cta-glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.15;
+      mix-blend-mode: screen;
+      z-index: 1;
+    }
+
+    .cta-glow-blob.blob-1 {
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, var(--purple) 0%, transparent 70%);
+      top: -50px;
+      left: -50px;
+      animation: cta-float-1 8s ease-in-out infinite alternate;
+    }
+
+    .cta-glow-blob.blob-2 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+      bottom: -100px;
+      right: -50px;
+      animation: cta-float-2 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes cta-float-1 {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(20px, 15px) scale(1.1);
+      }
+    }
+
+    @keyframes cta-float-2 {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(-30px, -10px) scale(0.9);
+      }
+    }
+
+    /* ATS Preview items */
+    .ats-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .ats-preview-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+
+    .ats-preview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      transition: var(--transition-fast);
+    }
+
+    .ats-preview-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .preview-cert {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .preview-boost {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--emerald);
+    }
+
+    /* Premium Explorer Button */
+    .cert-explore-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 36px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--indigo) 0%, var(--purple-dark) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2;
+    }
+
+    .cert-explore-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: skewX(-25deg);
+      transition: 0.75s;
+    }
+
+    .cert-explore-btn:hover::before {
+      left: 150%;
+    }
+
+    .cert-explore-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5), 0 0 20px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-ambient-glow {
+      position: absolute;
+      inset: -4px;
+      border-radius: calc(var(--radius-md) + 4px);
+      background: linear-gradient(135deg, var(--indigo), var(--purple));
+      filter: blur(16px);
+      opacity: 0.3;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cert-explore-btn:hover~.btn-ambient-glow {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="three-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">⚡ ResumeAI</a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link-text">Home</a></li>
+        <li><a href="/dashboard" class="nav-link-text">📊 Dashboard</a></li>
+        <li><a href="/upload" class="btn-nav nav-link-text">Analyze Resume →</a></li>
+        <li><a href="/auth" class="btn-nav nav-link-text">🔐 Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrapper" style="padding-top: 120px; padding-bottom: 80px;">
+    <div class="container">
+
+      <div class="fade-up"
+        style="margin-bottom: 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+        <div>
+          <a href="/dashboard"
+            style="color:var(--purple-light); text-decoration:none; font-size:0.9rem; font-weight:500; display:inline-block; margin-bottom:12px;">←
+            Back to Dashboard</a>
+          <h1 style="font-size:2rem; margin-bottom:8px;">{{ result.filename }}</h1>
+          <div style="display:flex; gap:12px;">
+            <span class="tag tag-purple">{{ result.domain or 'General' }}</span>
+            <span class="tag" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">{{
+              result.filetype | upper }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-grid">
+
+        <!-- Main Content -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <div class="verify-banner fade-up">
+            <div style="font-size:1.8rem; flex-shrink:0;">🎓</div>
+            <div style="flex: 1;">
+              <h3 style="color:var(--emerald); font-size:1.05rem; margin-bottom:4px;">University Verification</h3>
+              {% if result.university %}
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom: 8px;">
+                Found <strong style="color:#fff;">{{ result.university }}</strong>.
+              </p>
+              {% else %}
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom: 8px;">
+                No university auto-detected, but you can still verify your student email.
+              </p>
+              {% endif %}
+              <div>
+                {% if result.is_verified %}
+                <span
+                  style="display:inline-flex; align-items:center; gap:6px; color:var(--emerald); font-weight:600; font-size:0.9rem; background:rgba(16,185,129,0.1); padding:4px 12px; border-radius:999px;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Verified
+                </span>
+                {% else %}
+                <span style="display:inline-flex; align-items:center; gap:12px;">
+                  <span style="color:var(--text-muted); font-size:0.85rem;">Status: Pending Verification</span>
+                  <a href="/verify?resume_id={{ result.resume_id }}"
+                    style="display:inline-block; padding:6px 16px; background:var(--emerald); color:#000; border-radius:8px; font-weight:600; font-size:0.85rem; text-decoration:none; transition:var(--transition);">Verify
+                    Now</a>
+                </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-static fade-up" style="padding: 32px;">
+            <h3 style="margin-bottom: 20px; font-size:1.2rem; display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--cyan)">💡</span> AI Suggestions
+            </h3>
+            <div>
+              {% for tip in result.suggestions %}
+              <div class="tip-card">{{ tip }}</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="glass-static fade-up" style="padding: 32px;">
+            <h3 style="margin-bottom: 20px; font-size:1.2rem;">🧠 Detected Skills</h3>
+            <div style="margin-bottom:24px;">
+              {% for skill in result.skills %}
+              <span class="keyword-pill">{{ skill }}</span>
+              {% endfor %}
+            </div>
+
+            <h3 style="margin-bottom: 20px; font-size:1.2rem; color:#FCA5A5;">⚠️ Missing Keywords</h3>
+            <div>
+              {% for kw in result.missing_keywords %}
+              <span class="keyword-pill missing-keyword">{{ kw }}</span>
+              {% else %}
+              <p style="color:var(--text-muted); font-size:0.9rem;">No major missing keywords found for this domain.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar (Score) -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <div class="score-banner fade-up">
+            <h3 style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:24px;">ATS Match Score</h3>
+
+            <div class="score-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="score-track" cx="50" cy="50" r="45"></circle>
+                <circle class="score-fill" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="283"
+                  data-score="{{ result.ats_score }}"></circle>
+              </svg>
+              <div class="score-text">
+                <div
+                  style="font-size:2.8rem; font-family:var(--font-display); font-weight:700; line-height:1; letter-spacing:-0.04em;">
+                  {{ result.ats_score }}</div>
+              </div>
+            </div>
+
+            {% set s = result.ats_score %}
+            {% if s >= 80 %}
+            <div
+              style="color:var(--emerald); font-weight:600; background:rgba(16,185,129,0.1); padding:8px; border-radius:8px;">
+              Excellent Fit</div>
+            {% elif s >= 60 %}
+            <div
+              style="color:var(--amber); font-weight:600; background:rgba(245,158,11,0.1); padding:8px; border-radius:8px;">
+              Good Fit</div>
+            {% else %}
+            <div
+              style="color:var(--red); font-weight:600; background:rgba(239,68,68,0.1); padding:8px; border-radius:8px;">
+              Needs Improvement</div>
+            {% endif %}
+          </div>
+
+          <div class="glass-static fade-up" style="padding: 24px;">
+            <h4
+              style="margin-bottom: 16px; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted);">
+              Score Breakdown</h4>
+
+            <div class="breakdown-row">
+              <span style="color:var(--text-secondary);">Skills Match</span>
+              <span style="font-weight:600;">{{ result.score_breakdown.skills }}/30</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:16px;">
+              <div class="progress-fill" style="width:{{ (result.score_breakdown.skills / 30) * 100 }}%"></div>
+            </div>
+
+            <div class="breakdown-row">
+              <span style="color:var(--text-secondary);">Experience</span>
+              <span style="font-weight:600;">{{ result.score_breakdown.experience }}/20</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:16px;">
+              <div class="progress-fill"
+                style="width:{{ (result.score_breakdown.experience / 20) * 100 }}%; background:linear-gradient(90deg,var(--indigo),var(--purple-light));">
+              </div>
+            </div>
+
+            <div class="breakdown-row">
+              <span style="color:var(--text-secondary);">Education</span>
+              <span style="font-weight:600;">{{ result.score_breakdown.education }}/20</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:16px;">
+              <div class="progress-fill"
+                style="width:{{ (result.score_breakdown.education / 20) * 100 }}%; background:linear-gradient(90deg,var(--cyan),var(--emerald));">
+              </div>
+            </div>
+
+            <div class="breakdown-row">
+              <span style="color:var(--text-secondary);">Formatting</span>
+              <span style="font-weight:600;">{{ result.score_breakdown.formatting }}/15</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill"
+                style="width:{{ (result.score_breakdown.formatting / 15) * 100 }}%; background:linear-gradient(90deg,var(--amber),#FCD34D);">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Premium CTA Section -->
+      <div class="glass-static fade-up cert-cta-section"
+        style="margin-top: 40px; padding: 48px; border-radius: var(--radius-lg); position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); background: linear-gradient(145deg, rgba(139, 92, 246, 0.12), rgba(6, 182, 212, 0.08));">
+
+        <!-- Ambient lighting blobs inside the CTA card -->
+        <div class="cta-glow-blob blob-1"></div>
+        <div class="cta-glow-blob blob-2"></div>
+
+        <div style="position: relative; z-index: 2; text-align: center;">
+          <span class="section-label"
+            style="color: var(--cyan); margin-bottom: 12px; font-size: 0.8rem; letter-spacing: 0.2em;">Complete ATS
+            Blueprint</span>
+
+          <h2
+            style="font-size: clamp(1.8rem, 4vw, 2.5rem); font-family: var(--font-display); font-weight: 800; line-height: 1.2; margin-bottom: 16px; background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.03em;">
+            Boost Your Resume Further
+          </h2>
+
+          <p
+            style="color: var(--text-secondary); font-size: clamp(0.95rem, 2vw, 1.15rem); max-width: 680px; margin: 0 auto 36px; line-height: 1.6;">
+            Unlock AI-powered certification recommendations tailored to your ATS gaps, missing skills, and career
+            domain.
+          </p>
+
+          <!-- Potential ATS Improvements Preview Grid -->
+          <div style="max-width: 600px; margin: 0 auto 40px; text-align: left;">
+            <div
+              style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.1em; text-align: center; margin-bottom: 16px;">
+              Potential ATS Score Gains
+            </div>
+            <div class="ats-preview-grid">
+              <div class="ats-preview-item">
+                <span class="preview-cert">AWS Cloud Practitioner</span>
+                <span class="preview-boost">+8% Boost</span>
+              </div>
+              <div class="ats-preview-item">
+                <span class="preview-cert">Kubernetes Basics</span>
+                <span class="preview-boost">+6% Boost</span>
+              </div>
+              <div class="ats-preview-item">
+                <span class="preview-cert">TypeScript Certification</span>
+                <span class="preview-boost">+5% Boost</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Explore Button Wrapper with Glowing Backing -->
+          <div class="btn-glow-wrapper" style="display: inline-block; position: relative;">
+            <div class="btn-ambient-glow"></div>
+            <a href="/certifications/{{ result.resume_id }}" class="cert-explore-btn"
+              onclick="event.preventDefault(); pageTransitionOut('/certifications/{{ result.resume_id }}');">
+              Explore Certifications <span class="arrow"
+                style="display: inline-block; transition: transform 0.3s var(--ease-spring);">→</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer
+    style="border-top:1px solid var(--border-glass); padding: 32px 0; text-align:center; color:var(--text-muted); font-size:0.85rem; position:relative; z-index:1; background:var(--bg-mid);">
+    <p>© 2026 AI Resume Analyzer · Built with Flask + Three.js + GSAP</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/three_bg.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeBackground('three-canvas');
+
+      // Animate score ring
+      setTimeout(() => {
+        const fill = document.querySelector('.score-fill');
+        const score = parseInt(fill.getAttribute('data-score'));
+        const maxDash = 283;
+        const targetDash = maxDash - (maxDash * score / 100);
+
+        let color = '#EF4444'; // red
+        if (score >= 80) color = '#10B981'; // green
+        else if (score >= 60) color = '#F59E0B'; // amber
+
+        fill.style.stroke = color;
+        fill.style.strokeDashoffset = targetDash;
+      }, 300);
+
+      if (typeof gsap !== 'undefined') {
+        gsap.to('.fade-up', {
+          y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out'
+        });
+      } else {
+        document.querySelectorAll('.fade-up').forEach(el => {
+          el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+        });
+      }
+
+    });
+  </script>
+</body>
+
+</html>

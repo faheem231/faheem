@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skills Radar — Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #04040F;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% 20%, rgba(124, 58, 237, 0.06), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(6, 182, 212, 0.04), transparent 50%);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ Include the component ═══ -->
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SKILLS RADAR CHART — Self-contained component
+     Deep-space glassmorphism · Chart.js radar · Auto-scoring from skills array
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  /* ── Radar Card Shell ──────────────────────────────────────────────────── */
+  .radar-card {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 22px;
+    padding: 28px;
+    max-width: 440px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.55),
+      0 0 1px rgba(124, 58, 237, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .radar-card:hover {
+    border-color: rgba(124, 58, 237, 0.22);
+    box-shadow:
+      0 28px 90px rgba(0, 0, 0, 0.6),
+      0 0 60px rgba(124, 58, 237, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .radar-card::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.12), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .radar-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.08), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .radar-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ────────────────────────────────────────────────────────────── */
+  .radar-card__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #64748B;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .radar-card__subtitle {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: #475569;
+    margin-bottom: 24px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Chart Container ───────────────────────────────────────────────────── */
+  .radar-card__chart-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .radar-card__chart-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220px;
+    height: 220px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.1), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .radar-card__chart-wrap canvas {
+    position: relative;
+    z-index: 1;
+    display: block;
+  }
+
+  /* ── Divider ───────────────────────────────────────────────────────────── */
+  .radar-card__divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08) 20%,
+      rgba(124, 58, 237, 0.15) 50%,
+      rgba(255, 255, 255, 0.08) 80%,
+      transparent
+    );
+    margin-bottom: 22px;
+  }
+
+  /* ── Skill Category Bars ───────────────────────────────────────────────── */
+  .radar-card__bars {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .radar-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .radar-bar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .radar-bar__label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #CBD5E1;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.01em;
+  }
+
+  .radar-bar__icon {
+    font-size: 0.85rem;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .radar-bar__score {
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .radar-bar__track {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .radar-bar__fill {
+    height: 100%;
+    border-radius: 999px;
+    width: 0%;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+  }
+
+  .radar-bar__fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(3px);
+    opacity: 0.7;
+  }
+
+  /* Individual bar colors */
+  .radar-bar--lang .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.6), #7C3AED);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+  }
+  .radar-bar--lang .radar-bar__score { color: #A78BFA; }
+
+  .radar-bar--frameworks .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.6), #2563EB);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+  }
+  .radar-bar--frameworks .radar-bar__score { color: #60A5FA; }
+
+  .radar-bar--databases .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.6), #06B6D4);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+  }
+  .radar-bar--databases .radar-bar__score { color: #22D3EE; }
+
+  .radar-bar--ai .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.6), #10B981);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+  .radar-bar--ai .radar-bar__score { color: #34D399; }
+
+  .radar-bar--devops .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.6), #F59E0B);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  }
+  .radar-bar--devops .radar-bar__score { color: #FBBF24; }
+
+  .radar-bar--soft .radar-bar__fill {
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.6), #EC4899);
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+  }
+  .radar-bar--soft .radar-bar__score { color: #F472B6; }
+
+  /* ── Entrance animation ────────────────────────────────────────────────── */
+  @keyframes radar-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .radar-card--animate {
+    animation: radar-card-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+</style>
+
+<div class="radar-card radar-card--animate" id="skills-radar-card">
+  <div class="radar-card__label">🕸️ Skills Radar</div>
+  <div class="radar-card__subtitle">Skill coverage across domains</div>
+
+  <div class="radar-card__chart-wrap">
+    <div class="radar-card__chart-glow"></div>
+    <canvas id="skillsRadarCanvas" width="340" height="340"></canvas>
+  </div>
+
+  <div class="radar-card__divider"></div>
+
+  <div class="radar-card__bars" id="radar-bars-container"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const CATEGORIES = [
+    {
+      key: 'lang',
+      label: 'Programming Languages',
+      shortLabel: 'Languages',
+      icon: '💻',
+      color: '#7C3AED',
+      colorLight: '#A78BFA',
+      keywords: [
+        'python','javascript','java','r','c','c++','c#','go','golang','rust',
+        'typescript','swift','kotlin','ruby','php','scala','perl','matlab',
+        'julia','dart','lua','haskell','elixir','clojure','groovy','fortran',
+        'cobol','assembly','vba','bash','shell','powershell','objective-c',
+        'sql','html','css','sass','less','solidity','verilog','vhdl'
+      ]
+    },
+    {
+      key: 'frameworks',
+      label: 'Frameworks & Libraries',
+      shortLabel: 'Frameworks',
+      icon: '📦',
+      color: '#2563EB',
+      colorLight: '#60A5FA',
+      keywords: [
+        'react','angular','vue','svelte','next.js','nextjs','nuxt','nuxtjs',
+        'flask','django','fastapi','express','spring','spring boot','springboot',
+        'rails','ruby on rails','laravel','asp.net','.net','node.js','nodejs',
+        'tensorflow','pytorch','keras','scikit-learn','sklearn','pandas','numpy',
+        'scipy','matplotlib','seaborn','plotly','opencv','nltk','spacy',
+        'huggingface','transformers','langchain','streamlit','gradio',
+        'bootstrap','tailwind','tailwindcss','material ui','chakra ui',
+        'jquery','redux','mobx','graphql','rest api','restful','swagger',
+        'socket.io','electron','react native','flutter','ionic','xamarin',
+        'unity','unreal','gatsby','remix','astro','deno','bun','fastify',
+        'nest.js','nestjs','gin','fiber','echo','actix','rocket','warp',
+        'hadoop','spark','pyspark','kafka','airflow','celery','rabbitmq',
+        'selenium','playwright','cypress','jest','mocha','pytest'
+      ]
+    },
+    {
+      key: 'databases',
+      label: 'Databases & Cloud',
+      shortLabel: 'DB & Cloud',
+      icon: '☁️',
+      color: '#06B6D4',
+      colorLight: '#22D3EE',
+      keywords: [
+        'sql','mysql','postgresql','postgres','sqlite','oracle','mssql',
+        'sql server','mariadb','mongodb','dynamodb','cassandra','couchdb',
+        'redis','memcached','elasticsearch','neo4j','firebase','firestore',
+        'supabase','aws','amazon web services','ec2','s3','lambda','rds',
+        'sagemaker','cloudfront','route53','ecs','eks','fargate',
+        'gcp','google cloud','bigquery','cloud run','cloud functions',
+        'azure','azure devops','cosmos db','blob storage',
+        'heroku','vercel','netlify','digitalocean','linode','cloudflare',
+        'terraform','pulumi','cloudformation','snowflake','databricks',
+        'data warehouse','data lake','etl','data pipeline'
+      ]
+    },
+    {
+      key: 'ai',
+      label: 'AI & Data Science',
+      shortLabel: 'AI & DS',
+      icon: '🧠',
+      color: '#10B981',
+      colorLight: '#34D399',
+      keywords: [
+        'machine learning','ml','deep learning','dl','neural network',
+        'neural networks','cnn','rnn','lstm','gru','transformer','bert',
+        'gpt','llm','large language model','generative ai','gen ai',
+        'reinforcement learning','supervised learning','unsupervised learning',
+        'nlp','natural language processing','computer vision','cv',
+        'image recognition','object detection','yolo','segmentation',
+        'recommendation system','recommender','classification','regression',
+        'clustering','dimensionality reduction','pca','t-sne',
+        'feature engineering','model training','hyperparameter tuning',
+        'cross validation','a/b testing','statistical analysis','statistics',
+        'data analysis','data visualization','data mining','data science',
+        'data engineering','bi','business intelligence','tableau','power bi',
+        'eda','exploratory data analysis','time series','forecasting',
+        'anomaly detection','sentiment analysis','chatbot','rag',
+        'prompt engineering','fine tuning','transfer learning',
+        'mlops','model deployment','model monitoring','onnx',
+        'ai','artificial intelligence','predictive modeling'
+      ]
+    },
+    {
+      key: 'devops',
+      label: 'DevOps & Tools',
+      shortLabel: 'DevOps',
+      icon: '⚙️',
+      color: '#F59E0B',
+      colorLight: '#FBBF24',
+      keywords: [
+        'docker','kubernetes','k8s','podman','container','containerization',
+        'git','github','gitlab','bitbucket','svn','version control',
+        'ci/cd','cicd','jenkins','github actions','gitlab ci','circleci',
+        'travis ci','argo cd','tekton','spinnaker',
+        'linux','ubuntu','centos','debian','redhat','unix','shell scripting',
+        'nginx','apache','caddy','load balancer',
+        'ansible','puppet','chef','vagrant','packer',
+        'prometheus','grafana','datadog','new relic','splunk','elk',
+        'logstash','kibana','fluentd','jaeger','opentelemetry',
+        'jira','confluence','trello','notion','slack','agile','scrum',
+        'kanban','devops','sre','infrastructure as code','iac',
+        'microservices','api gateway','service mesh','istio','envoy',
+        'vscode','vim','emacs','intellij','postman','insomnia',
+        'figma','webpack','vite','babel','eslint','prettier'
+      ]
+    },
+    {
+      key: 'soft',
+      label: 'Soft Skills Indicators',
+      shortLabel: 'Soft Skills',
+      icon: '🏅',
+      color: '#EC4899',
+      colorLight: '#F472B6',
+      keywords: [
+        'project','projects','team','teamwork','leadership','leader',
+        'management','manager','communication','presentation','public speaking',
+        'problem solving','critical thinking','analytical','creativity',
+        'innovation','mentoring','mentorship','coaching','collaboration',
+        'cross-functional','stakeholder','client','customer',
+        'achievement','achievements','award','awards','honor','honors',
+        'publication','publications','research','paper','papers',
+        'certification','certifications','certified','certificate',
+        'volunteer','volunteering','community','open source','contributor',
+        'hackathon','competition','contest','scholarship',
+        'patent','patents','blog','blogging','speaker','conference',
+        'workshop','training','teaching','tutoring','freelance',
+        'entrepreneurship','startup','founded','co-founded',
+        'initiative','strategic','planning','budgeting','negotiation',
+        'adaptability','resilience','time management','multitasking',
+        'attention to detail','organized','proactive','self-motivated'
+      ]
+    }
+  ];
+
+  function calculateScores(skills) {
+    const normalizedSkills = skills.map(s => s.toLowerCase().trim());
+
+    return CATEGORIES.map(cat => {
+      let matches = 0;
+      const matchedSkills = [];
+
+      normalizedSkills.forEach(skill => {
+        const found = cat.keywords.some(kw => {
+          return skill === kw || skill.includes(kw) || kw.includes(skill);
+        });
+        if (found) {
+          matches++;
+          matchedSkills.push(skill);
+        }
+      });
+
+      let score = 0;
+      if (matches >= 1) {
+        score = Math.min(100, Math.round(25 * Math.log2(matches + 1) + 10 * matches));
+        score = Math.min(100, Math.max(10, score));
+      }
+
+      return {
+        key: cat.key,
+        label: cat.label,
+        shortLabel: cat.shortLabel,
+        icon: cat.icon,
+        color: cat.color,
+        colorLight: cat.colorLight,
+        score,
+        matches,
+        matchedSkills
+      };
+    });
+  }
+
+  let radarChartInstance = null;
+
+  function renderRadarChart(scores) {
+    const ctx = document.getElementById('skillsRadarCanvas').getContext('2d');
+
+    if (radarChartInstance) {
+      radarChartInstance.destroy();
+    }
+
+    const labels = scores.map(s => s.shortLabel);
+    const data   = scores.map(s => s.score);
+
+    radarChartInstance = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: 'rgba(124, 58, 237, 0.25)',
+          borderColor: '#7C3AED',
+          borderWidth: 2,
+          pointBackgroundColor: '#A78BFA',
+          pointBorderColor: '#A78BFA',
+          pointBorderWidth: 0,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: '#06B6D4',
+          pointHoverBorderColor: '#06B6D4',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: true,
+        animation: {
+          duration: 1200,
+          easing: 'easeInOutQuart'
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(15, 15, 30, 0.92)',
+            titleColor: '#E2E8F0',
+            bodyColor: '#94A3B8',
+            borderColor: 'rgba(124, 58, 237, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 10,
+            padding: 12,
+            titleFont: { family: 'Inter', size: 13, weight: '600' },
+            bodyFont: { family: 'Inter', size: 12 },
+            displayColors: false,
+            callbacks: {
+              title: function(items) {
+                const idx = items[0].dataIndex;
+                return scores[idx].label;
+              },
+              label: function(item) {
+                const idx = item.dataIndex;
+                const s = scores[idx];
+                return `Score: ${s.score}%  (${s.matches} skill${s.matches !== 1 ? 's' : ''} matched)`;
+              }
+            }
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            min: 0,
+            max: 100,
+            ticks: {
+              stepSize: 20,
+              display: false
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.08)',
+              lineWidth: 1
+            },
+            angleLines: {
+              color: 'rgba(255, 255, 255, 0.06)',
+              lineWidth: 1
+            },
+            pointLabels: {
+              color: '#94A3B8',
+              font: {
+                family: 'Inter',
+                size: 12,
+                weight: '500'
+              },
+              padding: 16
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderBars(scores) {
+    const container = document.getElementById('radar-bars-container');
+    container.innerHTML = '';
+
+    scores.forEach((s, i) => {
+      const bar = document.createElement('div');
+      bar.className = `radar-bar radar-bar--${s.key}`;
+      bar.innerHTML = `
+        <div class="radar-bar__header">
+          <span class="radar-bar__label">
+            <span class="radar-bar__icon">${s.icon}</span>
+            ${s.shortLabel}
+          </span>
+          <span class="radar-bar__score">${s.score}%</span>
+        </div>
+        <div class="radar-bar__track">
+          <div class="radar-bar__fill" id="radar-fill-${s.key}" style="width: 0%"></div>
+        </div>
+      `;
+      container.appendChild(bar);
+
+      setTimeout(() => {
+        const fill = document.getElementById(`radar-fill-${s.key}`);
+        if (fill) {
+          fill.style.width = s.score + '%';
+        }
+      }, 400 + i * 120);
+    });
+  }
+
+  window.initRadarChart = function (skills) {
+    if (!skills || !Array.isArray(skills) || skills.length === 0) {
+      console.warn('[SkillsRadar] No skills provided.');
+      return;
+    }
+
+    const scores = calculateScores(skills);
+
+    requestAnimationFrame(() => {
+      renderRadarChart(scores);
+      renderBars(scores);
+    });
+
+    return scores;
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    initRadarChart([
+      "Python", "React", "Flask", "SQL", "Machine Learning",
+      "Docker", "Git", "TensorFlow", "NLP"
+    ]);
+  });
+
+})();
+</script>
+
+</body>
+</html>

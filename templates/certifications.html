@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommended Certifications — AI Resume Analyzer</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <canvas id="three-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">⚡ ResumeAI</a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link-text">Home</a></li>
+        <li><a href="/dashboard" class="nav-link-text">📊 Dashboard</a></li>
+        <li><a href="/upload" class="btn-nav nav-link-text">Analyze Resume →</a></li>
+        <li><a href="/auth" class="btn-nav nav-link-text">🔐 Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrapper" style="padding-top: 120px; padding-bottom: 80px;">
+    <div class="container">
+      
+      <!-- Back Link -->
+      <div class="fade-up" style="margin-bottom: 24px;">
+        <a href="/result/{{ result.resume_id }}" style="color:var(--purple-light); text-decoration:none; font-size:0.9rem; font-weight:500; display:inline-flex; align-items:center; gap:6px; transition: var(--transition-fast);" onclick="event.preventDefault(); pageTransitionOut('/result/{{ result.resume_id }}');">
+          <span>←</span> Back to ATS Analysis
+        </a>
+      </div>
+
+      <!-- Certifications Content Component -->
+      {% include 'components/cert_recommendations.html' %}
+      
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border-glass); padding: 32px 0; text-align:center; color:var(--text-muted); font-size:0.85rem; position:relative; z-index:1; background:var(--bg-mid);">
+    <p>© 2026 AI Resume Analyzer · Built with Flask + Three.js + GSAP</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/three_bg.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initThreeBackground('three-canvas');
+      
+      if (typeof gsap !== 'undefined') {
+        gsap.to('.fade-up', {
+          y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out'
+        });
+      } else {
+        document.querySelectorAll('.fade-up').forEach(el => {
+          el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
