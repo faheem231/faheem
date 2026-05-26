@@ -7,10 +7,11 @@ ADDED: Dashboard route + API
 """
 
 import os
+import io
 import json
 from collections import Counter
 import uuid
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -333,6 +334,106 @@ def api_dashboard():
         "recent_resumes":  recent,
         "score_trend":     trend,
     })
+
+
+# ── API: Download Verified Resume ─────────────────────────────
+@app.route("/api/download-verified/<int:resume_id>")
+def download_verified_resume(resume_id):
+    """Return the original PDF with a verification watermark overlay."""
+
+    # 1. Look up resume & verification
+    resume = Resume.query.get(resume_id)
+    if not resume:
+        return jsonify({"error": "Resume not found"}), 404
+
+    verification = Verification.query.filter_by(resume_id=resume_id).first()
+    if not verification or not verification.verified:
+        return jsonify({"error": "Resume is not verified. Please verify your email first."}), 403
+
+    # 2. Ensure original PDF exists
+    if not os.path.isfile(resume.filepath):
+        return jsonify({"error": "Original resume file not found on server"}), 404
+
+    if resume.filetype != "pdf":
+        return jsonify({"error": "Watermarked download is only available for PDF resumes"}), 400
+
+    try:
+        from PyPDF2 import PdfReader, PdfWriter
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.colors import Color
+        from reportlab.lib.units import inch
+
+        reader = PdfReader(resume.filepath)
+        writer = PdfWriter()
+
+        for page in reader.pages:
+            page_width  = float(page.mediabox.width)
+            page_height = float(page.mediabox.height)
+
+            # ── Build watermark overlay ────────────────────────
+            packet = io.BytesIO()
+            c = canvas.Canvas(packet, pagesize=(page_width, page_height))
+
+            # --- Bottom-right diagonal watermark ---
+            c.saveState()
+            purple = Color(124 / 255, 58 / 255, 237 / 255, alpha=0.3)
+            c.setFillColor(purple)
+            c.setFont("Helvetica-Bold", 14)
+            # Position in bottom-right, rotated 35°
+            text_x = page_width - 220
+            text_y = 40
+            c.translate(text_x, text_y)
+            c.rotate(35)
+            c.drawString(0, 0, "\u2713 Verified by ResumeAI")
+            c.restoreState()
+
+            # --- Top-right green "VERIFIED" stamp ---
+            c.saveState()
+            green = Color(16 / 255, 185 / 255, 129 / 255, alpha=0.25)
+            c.setStrokeColor(green)
+            c.setFillColor(green)
+            c.setLineWidth(2)
+            stamp_x = page_width - 90
+            stamp_y = page_height - 45
+            c.ellipse(
+                stamp_x - 42, stamp_y - 14,
+                stamp_x + 42, stamp_y + 14,
+                stroke=1, fill=0,
+            )
+            c.setFont("Helvetica-Bold", 11)
+            c.drawCentredString(stamp_x, stamp_y - 4, "VERIFIED")
+            c.restoreState()
+
+            c.save()
+
+            # ── Merge overlay onto original page ───────────────
+            packet.seek(0)
+            overlay_reader = PdfReader(packet)
+            overlay_page   = overlay_reader.pages[0]
+            page.merge_page(overlay_page)
+            writer.add_page(page)
+
+        # 3. Write to memory buffer & return
+        output = io.BytesIO()
+        writer.write(output)
+        output.seek(0)
+
+        # Build download filename
+        base_name = os.path.splitext(resume.filename)[0]
+        download_name = f"verified_resume_{base_name}.pdf"
+
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=download_name,
+            mimetype="application/pdf",
+        )
+
+    except ImportError as e:
+        return jsonify({"error": f"Server dependency missing: {e}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate watermarked PDF: {str(e)}"}), 500
 
 
 # ── Error Handlers ────────────────────────────────────────────

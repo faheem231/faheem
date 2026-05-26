@@ -53,7 +53,8 @@
 
         <!-- Already Verified state -->
         <div id="verified-state" style="display:none; text-align:center;">
-          <div class="glass-static" style="padding:48px 32px;">
+          <!-- ── Success header ── -->
+          <div class="glass-static" style="padding:48px 32px; margin-bottom:24px;">
             <div style="font-size:4rem; margin-bottom:16px;">🎓</div>
             <h2 style="font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; margin-bottom:8px;">
               Already Verified!
@@ -62,6 +63,53 @@
               Your email has been successfully verified.
             </p>
             <span class="tag tag-green" style="font-size:0.9rem; padding:8px 20px;">✅ Verified</span>
+          </div>
+
+          <!-- ── Verified Info Card ── -->
+          <div class="glass result-card" style="padding:28px 32px; margin-bottom:24px; text-align:left;
+              border:1px solid rgba(16,185,129,0.25); background:rgba(16,185,129,0.04);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+              <span style="font-size:1.6rem;">✅</span>
+              <p style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; color:#34d399;">
+                Your resume has been verified by ResumeAI
+              </p>
+            </div>
+            <div style="display:flex; gap:32px; flex-wrap:wrap;">
+              <div>
+                <p style="color:var(--text-muted); font-size:0.78rem; margin-bottom:4px;">University</p>
+                <p id="verified-university" style="font-weight:600; font-size:0.95rem;">—</p>
+              </div>
+              <div>
+                <p style="color:var(--text-muted); font-size:0.78rem; margin-bottom:4px;">Email</p>
+                <p id="verified-email" style="font-weight:600; font-size:0.95rem; color:var(--cyan);">—</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Download Verified Resume Button ── -->
+          <button
+            id="download-verified-btn"
+            class="btn btn-success"
+            onclick="window.location.href=`/api/download-verified/${RESUME_ID}`"
+            style="
+              display:inline-flex; align-items:center; gap:10px;
+              padding:16px 36px; font-size:1.05rem; font-weight:700;
+              border:none; border-radius:var(--radius-md); cursor:pointer;
+              color:#fff;
+              background:linear-gradient(135deg, #10B981 0%, #059669 100%);
+              box-shadow: 0 0 24px rgba(16,185,129,0.3), 0 4px 16px rgba(0,0,0,0.3);
+              transition: transform 0.2s ease, box-shadow 0.2s ease;
+              margin-bottom:24px;
+            "
+            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 32px rgba(16,185,129,0.45), 0 8px 24px rgba(0,0,0,0.35)'"
+            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 0 24px rgba(16,185,129,0.3), 0 4px 16px rgba(0,0,0,0.3)'"
+          >
+            ⬇️ Download Verified Resume
+          </button>
+
+          <!-- ── Back to results ── -->
+          <div>
+            <a id="verified-back-to-results" href="#" class="btn btn-outline">← Back to Results</a>
           </div>
         </div>
 
@@ -219,6 +267,11 @@
         if (data.verified) {
           document.getElementById('verified-state').style.display = 'block';
           document.getElementById('verify-form-wrap').style.display = 'none';
+
+          // Populate verified info card
+          document.getElementById('verified-university').textContent = data.university_name || 'N/A';
+          document.getElementById('verified-email').textContent = data.email || 'N/A';
+          document.getElementById('verified-back-to-results').href = `/result/${RESUME_ID}`;
           return;
         }
 
