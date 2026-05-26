@@ -1,29 +1,63 @@
-# Environment variables (contains SMTP credentials)
+# ── Environment & Secrets ─────────────────────────────────────
 .env
+.env.*
+!.env.example
 
-# Python
+# ── Python ────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
 *.egg-info/
+*.egg
 dist/
 build/
+*.whl
+*.manifest
+*.spec
+
+# ── Virtual Environments ──────────────────────────────────────
 .venv/
 venv/
+env/
+ENV/
 
-# Database
+# ── Database (SQLite) ─────────────────────────────────────────
 database/*.db
+*.sqlite3
 
-# Uploaded files
+# ── Uploaded Files ────────────────────────────────────────────
 uploads/*
 !uploads/.gitkeep
 
-# IDE
+# ── IDE / Editors ─────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.settings/
 
-# OS
+# ── OS Generated ──────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Distribution / Packaging ─────────────────────────────────
+*.tar.gz
+*.zip
+
+# ── Byte-compiled ─────────────────────────────────────────────
+*.pyc
+*.pdb
+
+# ── Misc ──────────────────────────────────────────────────────
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/

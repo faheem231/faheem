@@ -14,7 +14,7 @@ load_dotenv()
 class Config:
     # ── Flask ────────────────────────────────────────────────────────────
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
-    DEBUG = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+    DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 
     # ── File uploads ─────────────────────────────────────────────────────
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
