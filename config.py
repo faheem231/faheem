@@ -28,11 +28,14 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── Email (Gmail SMTP) ────────────────────────────────────────────────
-    MAIL_SERVER   = "smtp.gmail.com"
-    MAIL_PORT     = 587
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "").strip()
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "").strip()  # ← .strip() removes spaces Google adds in App Password display
+    MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_PORT = int(os.getenv("MAIL_PORT", 587))
 
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "").strip()
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "").strip()
+
+    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+    MAIL_USE_SSL = False
     # ── Test mode: redirect ALL emails to this address ────────────────────
     # Set TEST_EMAIL_OVERRIDE in .env to intercept emails during development.
     # Leave blank (or unset) to send to the actual address entered by user.
