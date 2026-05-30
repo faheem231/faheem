@@ -45,16 +45,15 @@ def send_verification_email(to_email, university_name, token, resume_id):
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Verify Your Email - AI Resume Analyzer"
-    msg["From"] = Config.MAIL_USERNAME
-    msg["To"] = actual_to
+    msg["From"]    = Config.MAIL_USERNAME
+    msg["To"]      = actual_to
     msg.attach(MIMEText(plain_body, "plain"))
     msg.attach(MIMEText(html_body, "html"))
 
     try:
-        logger.info("[emailer] Connecting to smtp.gmail.com:587")
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
-            server.ehlo()
-            server.starttls()
+        # ✅ FIXED: port 465 with SMTP_SSL — works on Railway
+        logger.info("[emailer] Connecting to smtp.gmail.com:465")
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
             server.ehlo()
             server.login(Config.MAIL_USERNAME, Config.MAIL_PASSWORD)
             server.sendmail(Config.MAIL_USERNAME, actual_to, msg.as_string())
