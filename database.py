@@ -121,3 +121,41 @@ class Verification(db.Model):
             "verified": self.verified,
             "created_at": self.created_at.isoformat(),
         }
+
+
+class VerifiedResume(db.Model):
+    """Stores verified resume vault entries with verification stamps."""
+    __tablename__ = "verified_resumes"
+
+    id                  = db.Column(db.Integer, primary_key=True)
+    user_id             = db.Column(db.Integer, nullable=True)                       # Future auth integration
+    resume_id           = db.Column(db.Integer, db.ForeignKey("resumes.id"), nullable=False)
+    verification_id     = db.Column(db.String(64), unique=True, nullable=False)      # RAI-2026-UUID
+    verified_email      = db.Column(db.String(255), nullable=False)
+    institution         = db.Column(db.String(255), default="")
+    verified_at         = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    verification_status = db.Column(db.String(50), default="verified")               # verified / revoked
+    verified_pdf_path   = db.Column(db.String(512), default="")
+
+    # Relationships
+    resume = db.relationship("Resume", backref="verified_resume_entry")
+
+    def generate_verification_id(self):
+        """Generate a unique UUID-based verification ID."""
+        import uuid
+        year = datetime.now(timezone.utc).strftime("%Y")
+        uuid_part = uuid.uuid4().hex.upper()
+        return f"RAI-{year}-{uuid_part}"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "resume_id": self.resume_id,
+            "verification_id": self.verification_id,
+            "verified_email": self.verified_email,
+            "institution": self.institution,
+            "verified_at": self.verified_at.isoformat() if self.verified_at else "",
+            "verification_status": self.verification_status,
+            "verified_pdf_path": self.verified_pdf_path,
+            "filename": self.resume.filename if self.resume else "",
+        }

@@ -4,23 +4,28 @@ app.py
 Main Flask application
 FIXED: score_breakdown included in API response
 ADDED: Dashboard route + API
+ADDED: Verified Resume Vault (vault API, QR verification, PDF generation)
 """
 
 import os
 import io
 import json
+import logging
 from collections import Counter
 import uuid
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, redirect, url_for
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from config import Config
-from database import db, Resume, Analysis, Verification
+from database import db, Resume, Analysis, Verification, VerifiedResume
 from resume_parser import extract_text
 from nlp_analyzer import analyze_resume
 from university_validator import validate_university, validate_email_domain
 from emailer import generate_token, send_verification_email
+from verified_pdf_generator import generate_verified_pdf
+
+logger = logging.getLogger(__name__)
 
 
 def create_app():
@@ -30,6 +35,7 @@ def create_app():
 
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(Config.DB_FOLDER, exist_ok=True)
+    os.makedirs(os.path.join(Config.UPLOAD_FOLDER, "verified"), exist_ok=True)
 
     db.init_app(app)
     with app.app_context():
@@ -223,6 +229,40 @@ def confirm_email(token):
     verification.verify_token = ""
     db.session.commit()
 
+    # ── Auto-create Verified Resume Vault entry + generate PDF ──
+    try:
+        resume = Resume.query.get(verification.resume_id)
+        if resume and resume.filetype == "pdf":
+            # Check if vault entry already exists
+            existing = VerifiedResume.query.filter_by(resume_id=resume.id).first()
+            if not existing:
+                vault_entry = VerifiedResume(
+                    resume_id=resume.id,
+                    verified_email=verification.email,
+                    institution=verification.university_name or "",
+                )
+                vault_entry.verification_id = vault_entry.generate_verification_id()
+                db.session.add(vault_entry)
+                db.session.flush()  # Get ID before PDF gen
+
+                # Generate verified PDF
+                output_dir = os.path.join(Config.UPLOAD_FOLDER, "verified")
+                pdf_path = generate_verified_pdf(
+                    original_pdf_path=resume.filepath,
+                    verification_id=vault_entry.verification_id,
+                    institution=vault_entry.institution,
+                    verified_email=vault_entry.verified_email,
+                    app_base_url=Config.APP_BASE_URL,
+                    output_dir=output_dir,
+                    upload_date=resume.uploaded_at.strftime("%B %d, %Y") if resume.uploaded_at else "",
+                )
+                vault_entry.verified_pdf_path = pdf_path
+                db.session.commit()
+                logger.info(f"[vault] Created vault entry {vault_entry.verification_id} for resume {resume.id}")
+    except Exception as e:
+        logger.error(f"[vault] Failed to create vault entry: {e}")
+        db.session.rollback()
+
     return "<h2>Email Verified Successfully ✅</h2>"
 
 
@@ -240,6 +280,9 @@ def api_verification_status(resume_id):
             verification.university_match = uni_result.get("matched_name", "")
             db.session.commit()
 
+    vault_entry = VerifiedResume.query.filter_by(resume_id=resume_id).first()
+    verification_id = vault_entry.verification_id if vault_entry else ""
+
     return jsonify({
         "found":            True,
         "university_name":  verification.university_name,
@@ -248,6 +291,7 @@ def api_verification_status(resume_id):
         "university_domain":uni_result.get("domain", ""),
         "email":            verification.email,
         "verified":         verification.verified,
+        "verification_id":  verification_id,
     })
 
 
@@ -318,6 +362,10 @@ def api_dashboard():
             "date": r.uploaded_at.strftime("%b %d"),
         })
 
+    # Verified vault entries
+    vault_entries = VerifiedResume.query.order_by(VerifiedResume.verified_at.desc()).all()
+    vault_list = [v.to_dict() for v in vault_entries]
+
     return jsonify({
         "total_resumes":   total,
         "analyzed_count":  len(analyzed),
@@ -333,107 +381,137 @@ def api_dashboard():
         "total_verifications": len(verifications),
         "recent_resumes":  recent,
         "score_trend":     trend,
+        "verified_resumes": vault_list,
     })
 
 
 # ── API: Download Verified Resume ─────────────────────────────
 @app.route("/api/download-verified/<int:resume_id>")
 def download_verified_resume(resume_id):
-    """Return the original PDF with a verification watermark overlay."""
-
-    # 1. Look up resume & verification
-    resume = Resume.query.get(resume_id)
-    if not resume:
-        return jsonify({"error": "Resume not found"}), 404
-
+    """Redirect to the secure unique download route if verified, auto-healing the vault if needed."""
+    resume = Resume.query.get_or_404(resume_id)
     verification = Verification.query.filter_by(resume_id=resume_id).first()
     if not verification or not verification.verified:
         return jsonify({"error": "Resume is not verified. Please verify your email first."}), 403
 
-    # 2. Ensure original PDF exists
-    if not os.path.isfile(resume.filepath):
-        return jsonify({"error": "Original resume file not found on server"}), 404
-
-    if resume.filetype != "pdf":
-        return jsonify({"error": "Watermarked download is only available for PDF resumes"}), 400
-
-    try:
-        from PyPDF2 import PdfReader, PdfWriter
-        from reportlab.pdfgen import canvas
-        from reportlab.lib.pagesizes import letter
-        from reportlab.lib.colors import Color
-        from reportlab.lib.units import inch
-
-        reader = PdfReader(resume.filepath)
-        writer = PdfWriter()
-
-        for page in reader.pages:
-            page_width  = float(page.mediabox.width)
-            page_height = float(page.mediabox.height)
-
-            # ── Build watermark overlay ────────────────────────
-            packet = io.BytesIO()
-            c = canvas.Canvas(packet, pagesize=(page_width, page_height))
-
-            # --- Bottom-right diagonal watermark ---
-            c.saveState()
-            purple = Color(124 / 255, 58 / 255, 237 / 255, alpha=0.3)
-            c.setFillColor(purple)
-            c.setFont("Helvetica-Bold", 14)
-            # Position in bottom-right, rotated 35°
-            text_x = page_width - 220
-            text_y = 40
-            c.translate(text_x, text_y)
-            c.rotate(35)
-            c.drawString(0, 0, "\u2713 Verified by ResumeAI")
-            c.restoreState()
-
-            # --- Top-right green "VERIFIED" stamp ---
-            c.saveState()
-            green = Color(16 / 255, 185 / 255, 129 / 255, alpha=0.25)
-            c.setStrokeColor(green)
-            c.setFillColor(green)
-            c.setLineWidth(2)
-            stamp_x = page_width - 90
-            stamp_y = page_height - 45
-            c.ellipse(
-                stamp_x - 42, stamp_y - 14,
-                stamp_x + 42, stamp_y + 14,
-                stroke=1, fill=0,
+    vault_entry = VerifiedResume.query.filter_by(resume_id=resume_id).first()
+    if not vault_entry:
+        # Auto-create the vault entry
+        try:
+            vault_entry = VerifiedResume(
+                resume_id=resume.id,
+                verified_email=verification.email,
+                institution=verification.university_name or "",
             )
-            c.setFont("Helvetica-Bold", 11)
-            c.drawCentredString(stamp_x, stamp_y - 4, "VERIFIED")
-            c.restoreState()
+            vault_entry.verification_id = vault_entry.generate_verification_id()
+            db.session.add(vault_entry)
+            db.session.flush()
 
-            c.save()
+            output_dir = os.path.join(Config.UPLOAD_FOLDER, "verified")
+            pdf_path = generate_verified_pdf(
+                original_pdf_path=resume.filepath,
+                verification_id=vault_entry.verification_id,
+                institution=vault_entry.institution,
+                verified_email=vault_entry.verified_email,
+                app_base_url=Config.APP_BASE_URL,
+                output_dir=output_dir,
+                upload_date=resume.uploaded_at.strftime("%B %d, %Y") if resume.uploaded_at else "",
+            )
+            vault_entry.verified_pdf_path = pdf_path
+            db.session.commit()
+        except Exception as e:
+            logger.error(f"[vault-autoheal] Failed to create vault entry: {e}")
+            db.session.rollback()
+            return jsonify({"error": "Failed to generate verified resume"}), 500
 
-            # ── Merge overlay onto original page ───────────────
-            packet.seek(0)
-            overlay_reader = PdfReader(packet)
-            overlay_page   = overlay_reader.pages[0]
-            page.merge_page(overlay_page)
-            writer.add_page(page)
+    return redirect(url_for('download_verified_pdf_route', verification_id=vault_entry.verification_id))
 
-        # 3. Write to memory buffer & return
-        output = io.BytesIO()
-        writer.write(output)
-        output.seek(0)
 
-        # Build download filename
-        base_name = os.path.splitext(resume.filename)[0]
-        download_name = f"verified_resume_{base_name}.pdf"
+# ── Page: Public QR Verification ──────────────────────────────
+@app.route("/verify-resume/<verification_id>")
+def verify_resume_page(verification_id):
+    """Public page shown when someone scans the QR code on a verified resume."""
+    vault_entry = VerifiedResume.query.filter_by(verification_id=verification_id).first()
+    if not vault_entry:
+        return render_template("verify_resume.html", found=False, entry=None)
 
-        return send_file(
-            output,
-            as_attachment=True,
-            download_name=download_name,
-            mimetype="application/pdf",
-        )
+    return render_template("verify_resume.html", found=True, entry={
+        "verification_id": vault_entry.verification_id,
+        "institution": vault_entry.institution,
+        "verified_at": vault_entry.verified_at.strftime("%B %d, %Y") if vault_entry.verified_at else "",
+        "verification_status": vault_entry.verification_status,
+        "verified_email_domain": vault_entry.verified_email.split("@")[-1] if vault_entry.verified_email else "",
+    })
 
-    except ImportError as e:
-        return jsonify({"error": f"Server dependency missing: {e}"}), 500
-    except Exception as e:
-        return jsonify({"error": f"Failed to generate watermarked PDF: {str(e)}"}), 500
+
+# ── API: Vault — List Verified Resumes ────────────────────────
+@app.route("/api/vault")
+def api_vault():
+    """Return all verified resume vault entries."""
+    entries = VerifiedResume.query.order_by(VerifiedResume.verified_at.desc()).all()
+    return jsonify({"verified_resumes": [e.to_dict() for e in entries]})
+
+
+# ── API: Vault — Delete Entry ─────────────────────────────────
+@app.route("/api/vault/delete/<int:vault_id>", methods=["DELETE"])
+def api_vault_delete(vault_id):
+    """Delete a verified resume vault entry and its generated PDF."""
+    entry = VerifiedResume.query.get(vault_id)
+    if not entry:
+        return jsonify({"error": "Vault entry not found"}), 404
+
+    # Delete generated PDF file if it exists
+    if entry.verified_pdf_path and os.path.isfile(entry.verified_pdf_path):
+        try:
+            os.remove(entry.verified_pdf_path)
+            logger.info(f"[vault] Deleted PDF: {entry.verified_pdf_path}")
+        except OSError as e:
+            logger.warning(f"[vault] Could not delete PDF: {e}")
+
+    db.session.delete(entry)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Vault entry deleted"})
+
+
+# ── API: Download Verified PDF from Vault ─────────────────────
+@app.route("/api/vault/download/<int:vault_id>")
+def api_vault_download(vault_id):
+    """Download the verified PDF from the vault."""
+    entry = VerifiedResume.query.get(vault_id)
+    if not entry:
+        return jsonify({"error": "Vault entry not found"}), 404
+
+    if not entry.verified_pdf_path or not os.path.isfile(entry.verified_pdf_path):
+        return jsonify({"error": "Verified PDF not found on server"}), 404
+
+    download_name = f"verified_{entry.verification_id}.pdf"
+    return send_file(
+        entry.verified_pdf_path,
+        as_attachment=True,
+        download_name=download_name,
+        mimetype="application/pdf",
+    )
+
+
+# ── Public: Download Verified PDF by Verification ID ─────────
+@app.route("/download-verified-pdf/<verification_id>")
+def download_verified_pdf_route(verification_id):
+    """Download or preview a verified PDF from the vault by verification ID."""
+    entry = VerifiedResume.query.filter_by(verification_id=verification_id).first_or_404()
+
+    if not entry.verified_pdf_path or not os.path.isfile(entry.verified_pdf_path):
+        return jsonify({"error": "Verified PDF file not found on server"}), 404
+
+    # Determine if preview mode or download mode
+    preview = request.args.get("preview", "false").lower() == "true"
+    download_name = f"verified_{entry.verification_id}.pdf"
+
+    return send_file(
+        entry.verified_pdf_path,
+        as_attachment=not preview,
+        download_name=download_name,
+        mimetype="application/pdf",
+    )
 
 
 # ── Error Handlers ────────────────────────────────────────────

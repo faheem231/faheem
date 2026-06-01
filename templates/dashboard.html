@@ -476,6 +476,26 @@
           </table>
         </div>
 
+        <!-- Verified Resume Vault Section -->
+        <div class="recent-card fade-in" id="vault-card">
+          <div class="chart-header">
+            <h3 class="chart-title">🛡️ Verified Resume Vault</h3>
+            <span class="tag tag-green" id="vault-count">0 verified</span>
+          </div>
+          <table class="dash-table" id="vault-table">
+            <thead>
+              <tr>
+                <th>Resume Name</th>
+                <th>Institution</th>
+                <th>Verification Date</th>
+                <th>Verification ID</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="vault-tbody"></tbody>
+          </table>
+        </div>
+
         <!-- Bottom Row: File types + Verification + Quick Actions -->
         <div class="bottom-grid">
           <!-- File Types -->
@@ -661,6 +681,33 @@
             </td>
           </tr>`;
       }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No resumes yet</td></tr>';
+
+      // ── Verified Resume Vault ──
+      const vaultResumes = d.verified_resumes || [];
+      document.getElementById('vault-count').textContent = `${vaultResumes.length} verified`;
+      document.getElementById('vault-tbody').innerHTML = vaultResumes.map(v => {
+        const date = new Date(v.verified_at);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `
+          <tr>
+            <td>
+              <div class="filename-cell">
+                <div class="file-icon pdf">📕</div>
+                <span>${v.filename || 'Verified Resume'}</span>
+              </div>
+            </td>
+            <td><span class="tag tag-cyan">${v.institution || 'Not specified'}</span></td>
+            <td style="color:var(--text-muted); font-size:0.82rem;">${dateStr}</td>
+            <td><code style="color:var(--purple-light); font-weight:600; font-size:0.85rem;">${v.verification_id}</code></td>
+            <td>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-outline" style="padding:6px 12px; font-size:0.78rem;" onclick="previewVerified('${v.verification_id}')">👁️ Preview</button>
+                <button class="btn btn-outline" style="padding:6px 12px; font-size:0.78rem; border-color:var(--indigo);" onclick="downloadVerified('${v.verification_id}')">📥 Download</button>
+                <button class="btn btn-outline" style="padding:6px 12px; font-size:0.78rem; border-color:rgba(239,68,68,0.4); color:#F87171;" onclick="deleteVerified(${v.id})">🗑️ Delete</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No verified resumes in vault yet. Complete institutional email verification on a resume results page to add one!</td></tr>';
 
       // ── File Types ──
       const totalFiles = d.file_types.reduce((s, f) => s + f.count, 0) || 1;
@@ -935,6 +982,31 @@
         });
       }
     }
+
+    /* ── Verified Vault Action Handlers ── */
+    window.previewVerified = function(verificationId) {
+      window.open('/download-verified-pdf/' + verificationId + '?preview=true', '_blank');
+    };
+
+    window.downloadVerified = function(verificationId) {
+      window.location.href = '/download-verified-pdf/' + verificationId;
+    };
+
+    window.deleteVerified = async function(vaultId) {
+      if (confirm('Are you sure you want to delete this verified resume vault entry? This will also remove the verified PDF on the server. The original resume and ATS analysis history will remain untouched.')) {
+        try {
+          const res = await fetch('/api/vault/delete/' + vaultId, { method: 'DELETE' });
+          if (res.ok) {
+            await loadDashboard();
+          } else {
+            const errData = await res.json();
+            alert('Error: ' + (errData.error || 'Failed to delete entry'));
+          }
+        } catch (err) {
+          alert('Error deleting vault entry: ' + err.message);
+        }
+      }
+    };
   </script>
 </body>
 

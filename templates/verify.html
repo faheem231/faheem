@@ -272,6 +272,12 @@
           document.getElementById('verified-university').textContent = data.university_name || 'N/A';
           document.getElementById('verified-email').textContent = data.email || 'N/A';
           document.getElementById('verified-back-to-results').href = `/result/${RESUME_ID}`;
+
+          if (data.verification_id) {
+            document.getElementById('download-verified-btn').onclick = () => {
+              window.location.href = `/download-verified-pdf/${data.verification_id}`;
+            };
+          }
           return;
         }
 
